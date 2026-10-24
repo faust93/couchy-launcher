@@ -6,7 +6,12 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.conreo.couchytv.R
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -96,13 +101,25 @@ private val Context.dataStore by preferencesDataStore(name = "launcher")
 private val KEY_CONFIG = stringPreferencesKey("config")
 private val json = Json { ignoreUnknownKeys = true }
 
+/**
+ * In-memory source of truth (process-wide, survives activity recreate). The UI
+ * reacts to [ConfigStore.update] on the very next frame instead of waiting for
+ * DataStore's disk write — move-mode D-pad presses and settings toggles were
+ * each blocked on a flash write + JSON round-trip on slow TV storage.
+ */
+private val memory = MutableStateFlow<LauncherConfig?>(null)
+
 class ConfigStore(private val context: Context) {
 
-    val flow: Flow<LauncherConfig> = context.dataStore.data.map { prefs ->
-        prefs[KEY_CONFIG]?.let {
+    val flow: Flow<LauncherConfig> = flow {
+        if (memory.value == null) memory.compareAndSet(null, load())
+        emitAll(memory.filterNotNull())
+    }
+
+    private suspend fun load(): LauncherConfig =
+        context.dataStore.data.first()[KEY_CONFIG]?.let {
             runCatching { json.decodeFromString<LauncherConfig>(it) }.getOrNull()
         } ?: LauncherConfig(categories = defaultCategories(context))
-    }
 
     private fun defaultCategories(ctx: Context) = listOf(
         CategoryCfg("streaming", ctx.getString(R.string.cat_streaming)),
@@ -112,11 +129,13 @@ class ConfigStore(private val context: Context) {
     )
 
     suspend fun update(transform: (LauncherConfig) -> LauncherConfig) {
+        val loaded = memory.value ?: load()
+        val next = memory.updateAndGet { transform(it ?: loaded) }
+        if (next == loaded) return // nothing changed — skip the disk write
+        // Persist whatever is LATEST at write time, so concurrent updates can
+        // never leave an older snapshot on disk.
         context.dataStore.edit { prefs ->
-            val current = prefs[KEY_CONFIG]?.let {
-                runCatching { json.decodeFromString<LauncherConfig>(it) }.getOrNull()
-            } ?: LauncherConfig()
-            prefs[KEY_CONFIG] = json.encodeToString(transform(current))
+            prefs[KEY_CONFIG] = json.encodeToString(memory.value ?: next)
         }
     }
 }

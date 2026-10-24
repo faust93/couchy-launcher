@@ -643,7 +643,8 @@ fun LauncherApp(rescanTick: Int) {
             // + dim, crossfaded. Works identically on every Android version.
             val overlayAlpha by animateFloatAsState(
                 targetValue = if (dockExpanded) 1f else 0f,
-                animationSpec = tween(1000),
+                // Matches the grid's 340ms rise — a 1s fade lagged far behind it.
+                animationSpec = tween(340),
                 label = "dockOverlay",
             )
             if (overlayAlpha > 0.01f) {
@@ -674,7 +675,7 @@ fun LauncherApp(rescanTick: Int) {
             // panels slide in (status bar from the top, dock from the bottom) and
             // the icons fade in after.
             var introShown by remember { mutableStateOf(false) }
-            LaunchedEffect(Unit) { delay(450); introShown = true }
+            LaunchedEffect(Unit) { delay(200); introShown = true }
             val introTop by animateFloatAsState(
                 targetValue = if (introShown) 1f else 0f,
                 animationSpec = tween(340, easing = FastOutSlowInEasing),
@@ -910,7 +911,7 @@ fun LauncherApp(rescanTick: Int) {
     androidx.compose.animation.AnimatedVisibility(
         visible = !booted,
         enter = androidx.compose.animation.EnterTransition.None,
-        exit = androidx.compose.animation.fadeOut(tween(500)),
+        exit = androidx.compose.animation.fadeOut(tween(300)),
         modifier = Modifier.fillMaxSize(),
     ) { LoadingScreen() }
     }

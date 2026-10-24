@@ -18,8 +18,12 @@ import androidx.graphics.shapes.toPath
  * straight edge instead of meeting a quarter-circle arc abruptly, which is how
  * a rounded corner reads as smooth to the eye rather than "mathematically"
  * round. `smoothing` 0f = a plain arc (same as RoundedCornerShape), ~0.6f ≈ iOS.
+ *
+ * A data class so equal shapes compare equal: AppCard builds one per
+ * recomposition, and without equality every card's Surface saw a "new" shape
+ * and rebuilt its squircle path (RoundedPolygon → Path) on each pass.
  */
-class SmoothCornerShape(
+data class SmoothCornerShape(
     private val radius: Dp,
     private val smoothing: Float = 0.6f,
 ) : Shape {
