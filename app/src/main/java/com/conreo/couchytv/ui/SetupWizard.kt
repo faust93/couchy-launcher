@@ -156,10 +156,13 @@ fun SetupWizard(onDone: () -> Unit, onVpnChosen: (String?) -> Unit) {
                                 Body(stringResource(R.string.wizard_gtv_which))
                                 Body(stringResource(R.string.wizard_gtv_remap))
                                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    Button(onClick = { requestDefault() }) {
+                                    Button(onClick = { requestDefault() }, modifier = Modifier.airMouseInput(onClick = { requestDefault() })) {
                                         Text(stringResource(R.string.wizard_try_dialog))
                                     }
-                                    Button(onClick = { defaultHome = defaultHomePackage(context) }) {
+                                    Button(
+                                        onClick = { defaultHome = defaultHomePackage(context) },
+                                        modifier = Modifier.airMouseInput(onClick = { defaultHome = defaultHomePackage(context) }),
+                                    ) {
                                         Text(stringResource(R.string.wizard_check_again))
                                     }
                                 }
@@ -174,10 +177,13 @@ fun SetupWizard(onDone: () -> Unit, onVpnChosen: (String?) -> Unit) {
                     } else {
                         Body(stringResource(R.string.wizard_aosp_body))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Button(onClick = { requestDefault() }) {
+                            Button(onClick = { requestDefault() }, modifier = Modifier.airMouseInput(onClick = { requestDefault() })) {
                                 Text(stringResource(R.string.wizard_set_default))
                             }
-                            Button(onClick = { defaultHome = defaultHomePackage(context) }) {
+                            Button(
+                                onClick = { defaultHome = defaultHomePackage(context) },
+                                modifier = Modifier.airMouseInput(onClick = { defaultHome = defaultHomePackage(context) }),
+                            ) {
                                 Text(stringResource(R.string.wizard_check_again))
                             }
                         }
@@ -197,7 +203,10 @@ fun SetupWizard(onDone: () -> Unit, onVpnChosen: (String?) -> Unit) {
                     } else {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             vpns.forEach { (pkg, label) ->
-                                Button(onClick = { onVpnChosen(pkg); step = 3 }) { Text(label) }
+                                Button(
+                                    onClick = { onVpnChosen(pkg); step = 3 },
+                                    modifier = Modifier.airMouseInput(onClick = { onVpnChosen(pkg); step = 3 }),
+                                ) { Text(label) }
                             }
                         }
                     }
@@ -273,9 +282,14 @@ private fun NavRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         if (backAction != null) {
-            Button(onClick = backAction) { Text(stringResource(R.string.back)) }
+            Button(onClick = backAction, modifier = Modifier.airMouseInput(backAction)) {
+                Text(stringResource(R.string.back))
+            }
         }
-        Button(onClick = nextAction, modifier = Modifier.focusRequester(nextFocus)) {
+        Button(
+            onClick = nextAction,
+            modifier = Modifier.focusRequester(nextFocus).airMouseInput(nextAction),
+        ) {
             Text(nextLabel)
         }
     }
@@ -294,7 +308,7 @@ private fun PagerRow(page: Int, count: Int, onPrev: () -> Unit, onNext: () -> Un
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Button(onClick = onPrev) {
+        Button(onClick = onPrev, modifier = Modifier.airMouseInput(onPrev)) {
             Text(if (page > 0) "◄" else stringResource(R.string.back))
         }
         Text(
@@ -302,7 +316,7 @@ private fun PagerRow(page: Int, count: Int, onPrev: () -> Unit, onNext: () -> Un
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.7f),
         )
-        Button(onClick = onNext, modifier = Modifier.focusRequester(nextFocus)) {
+        Button(onClick = onNext, modifier = Modifier.focusRequester(nextFocus).airMouseInput(onNext)) {
             Text(if (page < count - 1) "►" else stringResource(R.string.wizard_skip))
         }
     }

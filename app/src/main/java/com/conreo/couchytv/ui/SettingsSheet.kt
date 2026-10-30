@@ -727,7 +727,8 @@ private fun SectionAppsDialog(
                         val inSection = cat.id in AppRepository.sectionsOf(app, config)
                         Surface(
                             onClick = { onToggle(app) },
-                            modifier = if (i == 0) Modifier.focusRequester(f) else Modifier,
+                            modifier = (if (i == 0) Modifier.focusRequester(f) else Modifier)
+                                .airMouseInput(onClick = { onToggle(app) }),
                             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
                             colors = ClickableSurfaceDefaults.colors(
                                 containerColor = Color.White.copy(alpha = 0.06f),
@@ -775,7 +776,10 @@ private fun SectionAppsDialog(
                         }
                     }
                 }
-                Button(onClick = onDismiss, modifier = Modifier.padding(top = 12.dp)) {
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.padding(top = 12.dp).airMouseInput(onDismiss),
+                ) {
                     Text(stringResource(R.string.done))
                 }
             }
@@ -1225,8 +1229,13 @@ private fun RenameDialog(
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(onClick = { if (name.isNotBlank()) onSave(name.trim()) }) { Text(stringResource(R.string.save)) }
-                    Button(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                    Button(
+                        onClick = { if (name.isNotBlank()) onSave(name.trim()) },
+                        modifier = Modifier.airMouseInput(onClick = { if (name.isNotBlank()) onSave(name.trim()) }),
+                    ) { Text(stringResource(R.string.save)) }
+                    Button(onClick = onDismiss, modifier = Modifier.airMouseInput(onDismiss)) {
+                        Text(stringResource(R.string.cancel))
+                    }
                 }
             }
         }
@@ -1457,6 +1466,7 @@ private fun SettingsItem(
         enabled = enabled,
         onClick = onClick,
         modifier = modifier
+            .airMouseInput(onClick)
             .onFocusChanged { focused = it.isFocused || it.hasFocus }
             .padding(horizontal = 8.dp)
             .background(
@@ -1482,6 +1492,7 @@ private fun SmallIconButton(
 ) {
     Surface(
         onClick = onClick,
+        modifier = Modifier.airMouseInput(onClick),
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Color.White.copy(alpha = 0.08f),

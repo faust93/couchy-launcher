@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -355,6 +356,7 @@ fun LauncherApp(rescanTick: Int) {
     val dockApps = remember(categorized) {
         categorized.flatMap { it.second }.distinctBy { it.pkg }
     }
+    val sectionListState = rememberLazyListState()
     val accent = ACCENTS[config.accent.coerceIn(0, ACCENTS.size - 1)]
 
     // ----- display dimensions: size + spacing drive everything, columns
@@ -774,8 +776,10 @@ fun LauncherApp(rescanTick: Int) {
                             androidx.compose.foundation.gestures.LocalBringIntoViewSpec provides vPivot
                         ) {
                             LazyColumn(
+                                state = sectionListState,
                                 modifier = Modifier
                                     .fillMaxSize()
+                                    .airMouseDragScroll(sectionListState, Orientation.Vertical)
                                     // Restore the last-focused card when focus returns
                                     // (e.g. coming back down from the status bar).
                                     .focusRestorer()
@@ -948,6 +952,7 @@ private fun CarouselSection(
     ) {
         LazyRow(
             state = state,
+            modifier = Modifier.airMouseDragScroll(state, Orientation.Horizontal),
             contentPadding = PaddingValues(horizontal = 44.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(gap),
         ) {
@@ -1067,6 +1072,7 @@ private fun DockArea(
 ) {
     val dockFocus = remember { FocusRequester() }
     val gridFocus = remember { FocusRequester() }
+    val gridListState = rememberLazyListState()
     // Back closes the open grid (returns to the dock); when closed it falls
     // through to the activity's no-op, so Back never exits the home screen.
     androidx.activity.compose.BackHandler(enabled = expanded) { onExpandChange(false) }
@@ -1177,7 +1183,10 @@ private fun DockArea(
             // Panel is gone; ALL icons over the blurred wallpaper, same column
             // count and same centering as the dock. Up from row 0 returns.
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                state = gridListState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .airMouseDragScroll(gridListState, Orientation.Vertical),
                 contentPadding = PaddingValues(vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(rowGap),
             ) {

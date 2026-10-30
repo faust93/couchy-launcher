@@ -102,7 +102,8 @@ private fun MenuDialog(
                         leadingContent = {
                             Icon(entry.icon, contentDescription = null)
                         },
-                        modifier = if (index == 0) Modifier.focusRequester(firstFocus) else Modifier,
+                        modifier = (if (index == 0) Modifier.focusRequester(firstFocus) else Modifier)
+                            .airMouseInput(entry.action),
                     )
                 }
                 LaunchedEffect(Unit) {

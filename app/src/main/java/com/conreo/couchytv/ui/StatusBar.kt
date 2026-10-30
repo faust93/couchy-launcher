@@ -109,6 +109,7 @@ private fun StatusIcon(
 ) {
     Surface(
         onClick = onClick,
+        modifier = Modifier.airMouseInput(onClick),
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Color.Transparent,

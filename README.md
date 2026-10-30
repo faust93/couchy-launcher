@@ -43,7 +43,7 @@ One screen, remote-driven, for 1080p and 4K TVs. No network requests out of the 
 - **18 languages** with a dedicated language picker in Launcher settings.
 - **Adjustable** icon size, spacing, corner roundness, interface scale, dimming, and an optional glass status-bar panel.
 - **Status row** — clock, network state, optional VPN button.
-- **D-pad only** — text entry happens only inside dialogs.
+- **Remote and air-mouse support** — navigate with the D-pad or point and click; hold OK and drag to scroll launcher lists. Text entry happens only inside dialogs.
 - **17 languages** (+ English), auto-selected from your system language:
   العربية · Deutsch · Español · Français · हिन्दी · Bahasa Indonesia · Italiano · 日本語 · 한국어 · Nederlands · Polski · Português · Русский · ไทย · Türkçe · Tiếng Việt · 中文.
 
@@ -61,7 +61,7 @@ The built-in aerial video wallpapers are **opt-in and off by default**. When ena
 - **Android 5.0 (Lollipop) or newer** — the whole Android TV lineage.
 - **ARM (32- or 64-bit) or x86** — one universal APK covers every box, old and new.
 - **No dependencies** — no companion app and **no Google Play Services** required; runs on AOSP boxes too.
-- Driven entirely by the **remote / D-pad**; no touchscreen needed.
+- Works with the **remote / D-pad or an air mouse**; no touchscreen needed.
 
 ---
 

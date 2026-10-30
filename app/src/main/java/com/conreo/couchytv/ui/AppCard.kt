@@ -94,7 +94,13 @@ fun AppCard(
                 }
                 true // swallow the repeats themselves
             }
-            .width(cardWidth),
+            .width(cardWidth)
+            .airMouseInput(
+                onClick = {
+                    if (SystemClock.uptimeMillis() - longPressAt > 1_000L) onLaunch()
+                },
+                onLongClick = { fireLongPress() },
+            ),
         shape = ClickableSurfaceDefaults.shape(cardShape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = app.tile,
