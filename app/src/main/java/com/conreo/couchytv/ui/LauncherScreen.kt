@@ -397,6 +397,10 @@ fun LauncherApp(rescanTick: Int) {
     // ----- display dimensions: size + spacing drive everything, columns
     // are always derived from available width (never a fixed count) -----
     val cardWidth: Dp = ICON_SIZES[config.iconScale.coerceIn(0, ICON_SIZES.size - 1)]
+    // The continue-watching row has its own width so it can be sized
+    // independently of the app icons (media cards read better bigger).
+    val cwCardWidth: Dp =
+        ICON_SIZES[config.continueCardSize.coerceIn(0, ICON_SIZES.size - 1)]
     val gap: Dp = GAP_SIZES[config.spacing.coerceIn(0, GAP_SIZES.size - 1)]
 
     // Columns as laid out on screen (mirrors the padding used by GridSection /
@@ -769,6 +773,7 @@ fun LauncherApp(rescanTick: Int) {
                         expanded = dockExpanded,
                         continueEntries = continueEntries,
                         continuePosters = continuePosters,
+                        continueCardWidth = cwCardWidth,
                         onExpandChange = { dockExpanded = it },
                         onLaunch = { app -> if (movePkg == null) Actions.launchApp(context, app.pkg) },
                         onMenu = { app -> if (movePkg == null) menuFor = app },
@@ -844,7 +849,7 @@ fun LauncherApp(rescanTick: Int) {
                                     entries = continueEntries,
                                     posters = continuePosters,
                                     accent = accent,
-                                    cardWidth = cardWidth,
+                                    cardWidth = cwCardWidth,
                                     gap = gap,
                                     intro = introShown,
                                     sourceLabel = { pkg ->
@@ -1236,6 +1241,7 @@ private fun DockArea(
     expanded: Boolean,
     continueEntries: List<ContinueEntry>,
     continuePosters: Map<String, ImageBitmap>,
+    continueCardWidth: Dp,
     onExpandChange: (Boolean) -> Unit,
     onLaunch: (AppEntry) -> Unit,
     onMenu: (AppEntry) -> Unit,
@@ -1371,7 +1377,7 @@ private fun DockArea(
                             entries = continueEntries,
                             posters = continuePosters,
                             accent = accent,
-                            cardWidth = cardWidth,
+                            cardWidth = continueCardWidth,
                             gap = gap,
                             // Already intro'd; slide only on expand like the grid.
                             intro = true,

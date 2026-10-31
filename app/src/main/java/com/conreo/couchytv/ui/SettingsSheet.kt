@@ -1134,6 +1134,21 @@ private fun ContinueWatchingScreen(
                 current = idx,
                 onSelect = { v -> scope.launch { store.update { it.copy(continueCardCount = v) } } },
             )
+            val sizeIdx = config.continueCardSize.coerceIn(0, ICON_SIZES.size - 1)
+            SelectorRow(
+                label = stringResource(R.string.cw_card_size),
+                value = listOf(
+                    stringResource(R.string.size_xs),
+                    stringResource(R.string.size_s),
+                    stringResource(R.string.size_n),
+                    stringResource(R.string.size_l),
+                    stringResource(R.string.size_xl),
+                )[sizeIdx],
+                description = stringResource(R.string.cw_card_size_sub),
+                steps = ICON_SIZES.size,
+                current = sizeIdx,
+                onSelect = { v -> scope.launch { store.update { it.copy(continueCardSize = v) } } },
+            )
 
             SectionLabel(stringResource(R.string.cw_sources))
             if (sources.isEmpty()) {

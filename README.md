@@ -37,7 +37,7 @@ One screen, remote-driven, for 1080p and 4K TVs. No network requests out of the 
 ## Features
 
 - **Three layouts** — Carousel, Grid, or a floating glass Dock (press **Down** to expand to the full grid).
-- **Continue watching row** (optional, off by default) — an extra row of 16:9 cards resuming the movies and episodes your apps paused. Read from Android TV's **Watch Next** table *and* from the **preview channels** apps publish (many players expose their history/bookmarks/popular lists there instead). Choose the card count and toggle each app or channel individually.
+- **Continue watching row** (optional, off by default) — an extra row of 16:9 cards resuming the movies and episodes your apps paused. Read from Android TV's **Watch Next** table *and* from the **preview channels** apps publish (many players expose their history/bookmarks/popular lists there instead). Choose the card count and size, and toggle each app or channel individually.
 - **Sections** you rename, reorder and fill; an app can appear in several. New installs go to the first section.
 - **Wallpapers** — gradients, your own photo, a looping video, or optional built-in aerial videos (Apple / Amazon / community, streamed only when enabled), with speed control and cross-fades.
 - **Save & load** your full configuration — categories, layout, wallpaper, and all settings — as a JSON file.
@@ -137,7 +137,7 @@ No ads, analytics, accounts or background services. The only network use is opti
 <summary>Click to expand</summary>
 
 **v1.1.0**
-- Optional "Continue watching" row: resume cards from Watch Next **and** the preview channels apps publish (opt-in, per-app and per-channel toggles, adjustable card count)
+- Optional "Continue watching" row: resume cards from Watch Next **and** the preview channels apps publish (opt-in, per-app and per-channel toggles, adjustable card count and card size)
 
 **v1.0.6**
 - Smoother cold start (limitedParallelism scan, 2-frame boot fade)
@@ -223,7 +223,7 @@ https://github.com/user-attachments/assets/6f21913e-1948-4543-9983-64dc68c602fa
 ## 功能
 
 - **三种布局**——轮播、网格，或悬浮玻璃底栏 Dock（按「下」展开为完整网格）。
-- **继续观看行**（可选，默认关闭）——额外一行 16:9 卡片，续播你的应用暂停的电影和剧集。数据来自 Android TV 的 **Watch Next** 表 **以及** 应用发布的**预览频道**（许多播放器把历史记录 / 书签 / 热门列表放在那里）。可调整卡片数量，并单独开关每个应用或频道。
+- **继续观看行**（可选，默认关闭）——额外一行 16:9 卡片，续播你的应用暂停的电影和剧集。数据来自 Android TV 的 **Watch Next** 表 **以及** 应用发布的**预览频道**（许多播放器把历史记录 / 书签 / 热门列表放在那里）。可调整卡片数量与大小，并单独开关每个应用或频道。
 - **分区**可自行重命名、排序、填充；一个应用可归入多个分区。新安装的应用进入第一个分区。
 - **壁纸**——渐变、你自己的照片、循环视频，或可选的内置航拍视频（Apple / Amazon / 社区，仅在开启时才联网），带速度控制与淡入淡出。
 - **可调**图标大小、间距、圆角、界面缩放、暗化，以及可选的玻璃状态栏面板。

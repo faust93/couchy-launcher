@@ -85,6 +85,8 @@ data class LauncherConfig(
     val continueWatching: Boolean = false,
     /** index into CONTINUE_CARD_COUNTS (see ui/LauncherScreen.kt) */
     val continueCardCount: Int = 2, // → 5 cards
+    /** index into ICON_SIZES — the row's card width, independent of app icons */
+    val continueCardSize: Int = 2, // → 190dp
     /** source packages the user turned OFF (denylist; a package not listed here is enabled) */
     val continueSources: Set<String> = emptySet(),
     /** preview channels the user turned OFF, keyed "package|channelId" (denylist) */

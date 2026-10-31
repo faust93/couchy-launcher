@@ -107,6 +107,8 @@
     <string name="cw_show_row">Show continue watching row</string>
     <string name="cw_show_row_sub">Cards come from the apps that publish Watch Next data</string>
     <string name="cw_cards">Cards in the row</string>
+    <string name="cw_card_size">Card size</string>
+    <string name="cw_card_size_sub">Independent of the app icon size</string>
     <string name="cw_sources">Sources</string>
     <string name="cw_source_sub">%1$d cards</string>
     <string name="cw_watch_next">Watch Next</string>
