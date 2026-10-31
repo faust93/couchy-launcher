@@ -37,6 +37,7 @@ One screen, remote-driven, for 1080p and 4K TVs. No network requests out of the 
 ## Features
 
 - **Three layouts** — Carousel, Grid, or a floating glass Dock (press **Down** to expand to the full grid).
+- **Continue watching row** (optional, off by default) — an extra row of 16:9 cards resuming the movies and episodes your apps paused, read from Android TV's Watch Next data. Choose the card count and turn individual source apps on or off.
 - **Sections** you rename, reorder and fill; an app can appear in several. New installs go to the first section.
 - **Wallpapers** — gradients, your own photo, a looping video, or optional built-in aerial videos (Apple / Amazon / community, streamed only when enabled), with speed control and cross-fades.
 - **Save & load** your full configuration — categories, layout, wallpaper, and all settings — as a JSON file.
@@ -52,6 +53,10 @@ One screen, remote-driven, for 1080p and 4K TVs. No network requests out of the 
 ## ⚠️ Aerial wallpaper notice
 
 The built-in aerial video wallpapers are **opt-in and off by default**. When enabled, they stream public video files from **Apple** and **Amazon** CDNs — these are non-free, third-party services. No credentials or private data are sent, but the network traffic goes to proprietary infrastructure. If you want a fully libre setup, use the gradient, photo, or local video wallpaper options instead.
+
+## ⚠️ Continue watching notice
+
+The continue-watching row is **opt-in and off by default**. When enabled (and after granting the *TV listings* permission from **Settings → Continue watching**), Couchy reads the *Watch Next* entries your streaming apps publish and shows them as resume cards. Poster images are downloaded **from the servers of the publishing apps** (usually their CDNs) when a card is shown — that is the only network use of this feature. You can turn each source app off individually; without any source, nothing is fetched.
 
 ---
 
@@ -122,12 +127,15 @@ The built-in setup wizard walks through this with your TV's IP pre-filled. No co
 
 ## Privacy
 
-No ads, analytics, accounts or background services. The only network use is optional aerial-video streaming, off by default. Sections, ordering, hidden apps and wallpaper stay in one local file.
+No ads, analytics, accounts or background services. The only network use is optional aerial-video streaming and optional continue-watching poster downloads, both off by default. Sections, ordering, hidden apps and wallpaper stay in one local file.
 
 ## Changelog
 
 <details>
 <summary>Click to expand</summary>
+
+**v1.1.0**
+- Optional "Continue watching" row: resume cards from your apps' Watch Next data (opt-in, per-source toggles, adjustable card count)
 
 **v1.0.6**
 - Smoother cold start (limitedParallelism scan, 2-frame boot fade)
@@ -213,6 +221,7 @@ https://github.com/user-attachments/assets/6f21913e-1948-4543-9983-64dc68c602fa
 ## 功能
 
 - **三种布局**——轮播、网格，或悬浮玻璃底栏 Dock（按「下」展开为完整网格）。
+- **继续观看行**（可选，默认关闭）——额外一行 16:9 卡片，续播你的应用暂停的电影和剧集（读取 Android TV 的 Watch Next 数据）。可调整卡片数量，并单独开关各个来源应用。
 - **分区**可自行重命名、排序、填充；一个应用可归入多个分区。新安装的应用进入第一个分区。
 - **壁纸**——渐变、你自己的照片、循环视频，或可选的内置航拍视频（Apple / Amazon / 社区，仅在开启时才联网），带速度控制与淡入淡出。
 - **可调**图标大小、间距、圆角、界面缩放、暗化，以及可选的玻璃状态栏面板。
@@ -225,6 +234,10 @@ https://github.com/user-attachments/assets/6f21913e-1948-4543-9983-64dc68c602fa
 ## ⚠️ 航拍壁纸说明
 
 内置航拍视频壁纸是**可选功能，默认关闭**。启用后，会从 **Apple** 和 **Amazon** CDN 串流公共视频文件——这些是非自由的第三方服务。不会发送任何凭据或隐私数据，但网络流量会经过专有基础设施。如需完全自由的配置，请使用渐变、照片或本地视频壁纸。
+
+## ⚠️ 继续观看说明
+
+继续观看行是**可选功能，默认关闭**。启用后（并在 **设置 → 继续观看** 中授予「电视节目单」权限），Couchy 会读取流媒体应用发布的 Watch Next 条目，以续播卡片的形式展示。海报图片会在显示卡片时从**发布应用的服务器**（通常是其 CDN）下载——这是该功能唯一的网络用途。你可以单独关闭每个来源应用；没有任何来源时，不会下载任何内容。
 
 ---
 
@@ -295,7 +308,7 @@ adb shell pm disable-user --user 0 com.google.android.tungsten.setupwraith   # �
 
 ## 隐私
 
-无广告、分析、账户或后台服务。唯一的联网是可选的航拍视频播放，默认关闭。分区、排序、隐藏应用与壁纸都存在一个本地文件中。
+无广告、分析、账户或后台服务。唯一的联网是可选的航拍视频播放和可选的继续观看海报下载，默认均关闭。分区、排序、隐藏应用与壁纸都存在一个本地文件中。
 
 ## 许可证
 

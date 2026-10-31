@@ -87,7 +87,7 @@ import kotlinx.serialization.json.Json
 
 private val format = Json { ignoreUnknownKeys = true; prettyPrint = true; encodeDefaults = true }
 
-private enum class SettingsScreen { Main, Wallpaper, Display, StatusBar, Apps, Categories, Launcher, About }
+private enum class SettingsScreen { Main, Wallpaper, Display, StatusBar, Apps, Categories, ContinueWatching, Launcher, About }
 
 /**
  * Settings panel built entirely from focusable rows and buttons — every
@@ -207,6 +207,7 @@ fun SettingsSheet(
                         onStatusBar = { screen = SettingsScreen.StatusBar },
                         onApps = { screen = SettingsScreen.Apps },
                         onCategories = { screen = SettingsScreen.Categories },
+                        onContinueWatching = { screen = SettingsScreen.ContinueWatching },
                         onLauncher = { screen = SettingsScreen.Launcher },
                         onAndroidSettings = { Actions.openSystemSettings(context) },
                         onAbout = { screen = SettingsScreen.About },
@@ -286,6 +287,12 @@ fun SettingsSheet(
                         store = store,
                         onBack = { screen = SettingsScreen.Main },
                     )
+                    SettingsScreen.ContinueWatching -> ContinueWatchingScreen(
+                        config = config,
+                        apps = apps,
+                        store = store,
+                        onBack = { screen = SettingsScreen.Main },
+                    )
                     SettingsScreen.About -> AboutScreen(
                         onBack = { screen = SettingsScreen.Main },
                     )
@@ -312,6 +319,7 @@ private fun MainScreen(
     onStatusBar: () -> Unit,
     onApps: () -> Unit,
     onCategories: () -> Unit,
+    onContinueWatching: () -> Unit,
     onLauncher: () -> Unit,
     onAndroidSettings: () -> Unit,
     onAbout: () -> Unit,
@@ -341,6 +349,12 @@ private fun MainScreen(
             headlineContent = { Text(stringResource(R.string.item_sections)) },
             supportingContent = { Text(stringResource(R.string.item_sections_sub)) },
             leadingContent = { Icon(AppIcons.Folder, contentDescription = null) },
+        )
+        SettingsItem(
+            selected = false, onClick = onContinueWatching,
+            headlineContent = { Text(stringResource(R.string.item_continue_watching)) },
+            supportingContent = { Text(stringResource(R.string.item_continue_watching_sub)) },
+            leadingContent = { Icon(AppIcons.History, contentDescription = null) },
         )
 
         // ---- Appearance: how it looks ----
@@ -1039,6 +1053,127 @@ private fun StatusBarScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+/* ------------------------------ continue watching ------------------------------ */
+
+@Composable
+private fun ContinueWatchingScreen(
+    config: LauncherConfig,
+    apps: List<AppEntry>,
+    store: ConfigStore,
+    onBack: () -> Unit,
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val f = initialFocus()
+
+    // Re-checked after every permission dialog round-trip (the row hides once
+    // access is granted) — rememberSaveable-free: the sheet recomputes it.
+    var permissionGranted by remember {
+        mutableStateOf(com.conreo.couchytv.data.ContinueWatching.hasPermission(context))
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> permissionGranted = granted }
+
+    // Publishers currently writing Watch Next rows, plus their card counts.
+    var sources by remember { mutableStateOf<List<com.conreo.couchytv.data.CwSource>>(emptyList()) }
+    LaunchedEffect(permissionGranted, config.continueWatching) {
+        sources = if (!permissionGranted) emptyList() else withContext(Dispatchers.IO) {
+            com.conreo.couchytv.data.ContinueWatching.sources(context)
+        }
+    }
+
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(
+            stringResource(R.string.item_continue_watching),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 12.dp, start = 8.dp),
+        )
+        SettingsItem(
+            selected = false,
+            onClick = { scope.launch { store.update { it.copy(continueWatching = !it.continueWatching) } } },
+            modifier = Modifier.focusRequester(f),
+            headlineContent = { Text(stringResource(R.string.cw_show_row)) },
+            supportingContent = { Text(stringResource(R.string.cw_show_row_sub)) },
+            leadingContent = { Icon(AppIcons.History, contentDescription = null) },
+            trailingContent = { CheckMark(checked = config.continueWatching) },
+        )
+
+        // The dangerous permission: without it the row can't see other apps'
+        // Watch Next data and simply stays empty. Some devices' grant dialogs
+        // never appear for permissions this unusual — hence the adb fallback.
+        if (!permissionGranted) {
+            SettingsItem(
+                selected = false,
+                onClick = {
+                    runCatching {
+                        permissionLauncher.launch("android.permission.READ_TV_LISTINGS")
+                    }
+                },
+                headlineContent = { Text(stringResource(R.string.cw_grant)) },
+                supportingContent = {
+                    Text(stringResource(R.string.cw_grant_sub) + "\n\n" + stringResource(R.string.cw_grant_hint))
+                },
+                leadingContent = { Icon(AppIcons.Info, contentDescription = null) },
+            )
+        }
+
+        if (config.continueWatching && permissionGranted) {
+            val idx = config.continueCardCount.coerceIn(0, CONTINUE_CARD_COUNTS.size - 1)
+            SelectorRow(
+                label = stringResource(R.string.cw_cards),
+                value = CONTINUE_CARD_COUNTS[idx].toString(),
+                steps = CONTINUE_CARD_COUNTS.size,
+                current = idx,
+                onSelect = { v -> scope.launch { store.update { it.copy(continueCardCount = v) } } },
+            )
+
+            SectionLabel(stringResource(R.string.cw_sources))
+            if (sources.isEmpty()) {
+                Text(
+                    stringResource(R.string.cw_sources_none),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp, top = 4.dp),
+                )
+            }
+            sources.forEach { source ->
+                // Denylist semantics: a package NOT in continueSources is on.
+                val enabled = source.pkg !in config.continueSources
+                val label = apps.firstOrNull { it.pkg == source.pkg }?.label ?: source.pkg
+                SettingsItem(
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            store.update { c ->
+                                c.copy(
+                                    continueSources = if (source.pkg in c.continueSources)
+                                        c.continueSources - source.pkg
+                                    else c.continueSources + source.pkg,
+                                )
+                            }
+                        }
+                    },
+                    headlineContent = { Text(label) },
+                    supportingContent = {
+                        Text(stringResource(R.string.cw_source_sub, source.cards))
+                    },
+                    trailingContent = { CheckMark(checked = enabled) },
+                )
+            }
+            Text(
+                stringResource(R.string.cw_network_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 8.dp, top = 12.dp),
+            )
         }
     }
 }

@@ -61,6 +61,23 @@ fun AppContextMenu(
     MenuDialog(title = app.label, entries = entries, onDismiss = onDismiss)
 }
 
+/** Reduced long-press menu for continue-watching cards: a content row is not
+ *  an app, so move/hide/close/uninstall make no sense here — just resume and
+ *  a shortcut to the publisher's App info. */
+@Composable
+fun ContinueContextMenu(
+    title: String,
+    onDismiss: () -> Unit,
+    onOpen: () -> Unit,
+    onAppInfo: () -> Unit,
+) {
+    val entries = listOf(
+        MenuEntry(stringResource(R.string.menu_open), AppIcons.Play, onOpen),
+        MenuEntry(stringResource(R.string.menu_app_info), AppIcons.Info, onAppInfo),
+    )
+    MenuDialog(title = title, entries = entries, onDismiss = onDismiss)
+}
+
 @Composable
 private fun MenuDialog(
     title: String,

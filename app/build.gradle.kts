@@ -13,8 +13,8 @@ android {
         applicationId = "com.conreo.couchytv"
         minSdk = 21
         targetSdk = 34
-        versionCode = 7
-        versionName = "1.0.6"
+        versionCode = 8
+        versionName = "1.1.0"
     }
 
     // Release signing key, supplied by CI via environment variables (from GitHub
@@ -77,6 +77,9 @@ dependencies {
     implementation("androidx.graphics:graphics-shapes:1.0.1")
 
     implementation("androidx.core:core-ktx:1.13.1")
+    // Watch Next ("continue watching") columns + compat constants for the TV
+    // provider table. Apache-2.0, minSdk 21, only depends on annotation+core.
+    implementation("androidx.tvprovider:tvprovider:1.1.0")
     implementation("androidx.annotation:annotation:1.8.2")
     implementation("androidx.activity:activity-compose:1.9.2")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.6")

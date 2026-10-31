@@ -38,6 +38,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +71,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,9 +79,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.conreo.couchytv.Actions
+import com.conreo.couchytv.R
 import com.conreo.couchytv.data.AppEntry
 import com.conreo.couchytv.data.AppRepository
 import com.conreo.couchytv.data.ConfigStore
+import com.conreo.couchytv.data.ContinueEntry
+import com.conreo.couchytv.data.ContinueWatching
 import com.conreo.couchytv.data.LAYOUT_DOCK
 import com.conreo.couchytv.data.LAYOUT_GRID
 import com.conreo.couchytv.data.LauncherConfig
@@ -129,6 +134,8 @@ private val ScrimBottom = Brush.verticalGradient(
 )
 /** Spacing steps between cards — 5 levels. */
 val GAP_SIZES = listOf(4.dp, 10.dp, 16.dp, 24.dp, 32.dp)
+/** Continue-watching card counts (index stored in config.continueCardCount). */
+val CONTINUE_CARD_COUNTS = listOf(3, 4, 5, 6, 8, 10, 12)
 /** Video wallpaper playback speeds (index stored in config.videoSpeed). */
 val VIDEO_SPEEDS = listOf(0.25f, 0.5f, 0.75f, 1f)
 /** Icon corner roundness steps (index stored in config.cornerRadius). */
@@ -356,6 +363,38 @@ fun LauncherApp(rescanTick: Int) {
     val dockApps = remember(categorized) {
         categorized.flatMap { it.second }.distinctBy { it.pkg }
     }
+
+    // ----- continue watching row (opt-in, off by default) -----
+    // Reloaded on resume (apps publish/refresh Watch Next rows while playing)
+    // and when the settings sheet closes (source toggles / permission grants
+    // take effect without leaving the launcher). Every failure path inside
+    // ContinueWatching is silent — no permission or no provider simply means
+    // an empty row, which renders as no row at all.
+    var cwMenuFor by remember { mutableStateOf<ContinueEntry?>(null) }
+    val continueCount = CONTINUE_CARD_COUNTS
+        .getOrElse(config.continueCardCount) { CONTINUE_CARD_COUNTS[3] }
+    // Keys: the whole config (toggle/sources/count changes rebuild it), the
+    // resume tick, and (apps, showSettings) — opening the settings sheet and
+    // closing it re-runs the query so permission grants and source toggles
+    // apply without leaving the launcher.
+    val continueEntries by produceState(
+        initialValue = emptyList(),
+        config,
+        resumeTick,
+        apps to showSettings,
+    ) {
+        value = if (!config.continueWatching) emptyList() else {
+            val installed = apps.mapTo(HashSet()) { it.pkg }
+            withContext(Dispatchers.IO) {
+                ContinueWatching.load(
+                    context.applicationContext, config, installed,
+                    CONTINUE_CARD_COUNTS
+                        .getOrElse(config.continueCardCount) { CONTINUE_CARD_COUNTS[3] },
+                )
+            }.also { ContinueWatching.requestPosters(context.applicationContext, it) }
+        }
+    }
+    val continuePosters by ContinueWatching.posters.collectAsState()
     val sectionListState = rememberLazyListState()
     val accent = ACCENTS[config.accent.coerceIn(0, ACCENTS.size - 1)]
 
@@ -732,9 +771,15 @@ fun LauncherApp(rescanTick: Int) {
                         gap = gap,
                         intro = introShown,
                         expanded = dockExpanded,
+                        continueEntries = continueEntries,
+                        continuePosters = continuePosters,
                         onExpandChange = { dockExpanded = it },
                         onLaunch = { app -> if (movePkg == null) Actions.launchApp(context, app.pkg) },
                         onMenu = { app -> if (movePkg == null) menuFor = app },
+                        onLaunchContinue = { entry ->
+                            Actions.launchProgram(context, entry.pkg, entry.intentUri)
+                        },
+                        onMenuContinue = { cwMenuFor = it },
                     )
                     else -> {
                         // Magnetic vertical scroll: the focused row is pinned to a
@@ -795,6 +840,27 @@ fun LauncherApp(rescanTick: Int) {
                                 ),
                                 verticalArrangement = Arrangement.spacedBy(18.dp),
                             ) {
+                        if (continueEntries.isNotEmpty()) {
+                            item(key = "cw") {
+                                // The row keeps its own entrance tied to introShown so
+                                // it slides in with the rest instead of popping after.
+                                ContinueRow(
+                                    entries = continueEntries,
+                                    posters = continuePosters,
+                                    accent = accent,
+                                    cardWidth = cardWidth,
+                                    gap = gap,
+                                    intro = introShown,
+                                    sourceLabel = { pkg ->
+                                        apps.firstOrNull { it.pkg == pkg }?.label ?: pkg
+                                    },
+                                    onLaunch = { entry ->
+                                        Actions.launchProgram(context, entry.pkg, entry.intentUri)
+                                    },
+                                    onMenu = { cwMenuFor = it },
+                                )
+                            }
+                        }
                         items(categorized.size, key = { categorized[it].first.id }) { rowIndex ->
                             val (cat, catApps) = categorized[rowIndex]
                             val isGrid = config.layout == LAYOUT_GRID
@@ -880,6 +946,18 @@ fun LauncherApp(rescanTick: Int) {
                     onAppInfo = { menuFor = null; Actions.openAppInfo(context, app.pkg) },
                     onClose = { menuFor = null; Actions.close(context, app.pkg) },
                     onUninstall = { menuFor = null; Actions.uninstall(context, app.pkg) },
+                )
+            }
+
+            cwMenuFor?.let { entry ->
+                ContinueContextMenu(
+                    title = entry.title,
+                    onDismiss = { cwMenuFor = null },
+                    onOpen = {
+                        cwMenuFor = null
+                        Actions.launchProgram(context, entry.pkg, entry.intentUri)
+                    },
+                    onAppInfo = { cwMenuFor = null; Actions.openAppInfo(context, entry.pkg) },
                 )
             }
 
@@ -976,6 +1054,91 @@ private fun CarouselSection(
     }
 }
 
+/* ------------------- continue watching row ------------------- */
+
+/**
+ * The extra "Continue watching" row: 16:9 content cards from other apps'
+ * Watch Next data. Same anatomy as a carousel section (uppercase label +
+ * horizontal row with the 44dp start margin and the same pivot scrolling),
+ * so it reads as a native part of the home screen.
+ */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
+private fun ContinueRow(
+    entries: List<ContinueEntry>,
+    posters: Map<String, ImageBitmap>,
+    accent: Color,
+    cardWidth: Dp,
+    gap: Dp,
+    intro: Boolean,
+    sourceLabel: (String) -> String,
+    onLaunch: (ContinueEntry) -> Unit,
+    onMenu: (ContinueEntry) -> Unit,
+) {
+    val rowEnter by animateFloatAsState(
+        targetValue = if (intro) 1f else 0f,
+        animationSpec = tween(500, easing = LinearOutSlowInEasing),
+        label = "cwEnter",
+    )
+    val labelAlpha by animateFloatAsState(
+        targetValue = if (intro) 1f else 0f,
+        animationSpec = tween(280, delayMillis = 320),
+        label = "cwLabel",
+    )
+    Column(Modifier.graphicsLayer {
+        translationX = (1f - rowEnter) * size.width
+        alpha = rowEnter
+    }) {
+        if (intro) {
+            Text(
+                text = stringResource(R.string.cw_row_label).uppercase(),
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White.copy(alpha = 0.6f),
+                letterSpacing = 1.5.sp,
+                modifier = Modifier
+                    .graphicsLayer { alpha = labelAlpha }
+                    .padding(start = 44.dp, bottom = 10.dp),
+            )
+        }
+        val state = rememberLazyListState()
+        // Same horizontal pivot as CarouselSection: the focused card slides to
+        // the 44dp start margin in one motion, never partially clipped.
+        val padPx = with(androidx.compose.ui.platform.LocalDensity.current) { 44.dp.toPx() }
+        val pivotSpec = remember(padPx) {
+            object : androidx.compose.foundation.gestures.BringIntoViewSpec {
+                override fun calculateScrollDistance(
+                    offset: Float,
+                    size: Float,
+                    containerSize: Float,
+                ): Float = offset - padPx
+            }
+        }
+        androidx.compose.runtime.CompositionLocalProvider(
+            androidx.compose.foundation.gestures.LocalBringIntoViewSpec provides pivotSpec
+        ) {
+            LazyRow(
+                state = state,
+                modifier = Modifier.airMouseDragScroll(state, Orientation.Horizontal),
+                contentPadding = PaddingValues(horizontal = 44.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(gap),
+            ) {
+                items(entries.size, key = { entries[it].key }) { i ->
+                    val entry = entries[i]
+                    ContinueCard(
+                        entry = entry,
+                        poster = entry.posterUri?.let { posters[it] },
+                        sourceLabel = sourceLabel(entry.pkg),
+                        accent = accent,
+                        cardWidth = cardWidth,
+                        onLaunch = { onLaunch(entry) },
+                        onLongPress = { onMenu(entry) },
+                    )
+                }
+            }
+        }
+    }
+}
+
 /* ------------------- grid: everything on screen ------------------- */
 
 /** Columns are derived from the available width, card size and spacing —
@@ -1067,9 +1230,13 @@ private fun DockArea(
     gap: Dp,
     intro: Boolean,
     expanded: Boolean,
+    continueEntries: List<ContinueEntry>,
+    continuePosters: Map<String, ImageBitmap>,
     onExpandChange: (Boolean) -> Unit,
     onLaunch: (AppEntry) -> Unit,
     onMenu: (AppEntry) -> Unit,
+    onLaunchContinue: (ContinueEntry) -> Unit,
+    onMenuContinue: (ContinueEntry) -> Unit,
 ) {
     val dockFocus = remember { FocusRequester() }
     val gridFocus = remember { FocusRequester() }
@@ -1191,6 +1358,25 @@ private fun DockArea(
                 contentPadding = PaddingValues(vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(rowGap),
             ) {
+                if (continueEntries.isNotEmpty()) {
+                    // First row of the expanded grid only — the collapsed dock
+                    // (glass panel + peek strip) is untouched, so the default
+                    // layout stays visually identical until expanded.
+                    item(key = "cw") {
+                        ContinueRow(
+                            entries = continueEntries,
+                            posters = continuePosters,
+                            accent = accent,
+                            cardWidth = cardWidth,
+                            gap = gap,
+                            // Already intro'd; slide only on expand like the grid.
+                            intro = true,
+                            sourceLabel = { pkg -> apps.firstOrNull { it.pkg == pkg }?.label ?: pkg },
+                            onLaunch = onLaunchContinue,
+                            onMenu = onMenuContinue,
+                        )
+                    }
+                }
                 items(rows.size, key = { rows.getOrNull(it)?.firstOrNull()?.pkg ?: "row$it" }) { r ->
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Box(Modifier.width(blockWidth)) {

@@ -37,6 +37,7 @@ These keep their own licenses, all compatible with GPLv3:
 | Cookie font — Ania Kruk (Google Fonts) | `res/font/cookie.ttf` (the "Buy me a coffee" heading) | **SIL OFL 1.1** |
 | AndroidX / Jetpack Compose, `androidx.tv`, DataStore | framework / UI | Apache-2.0 |
 | AndroidX Media3 (ExoPlayer) + OkHttp data source | video wallpaper | Apache-2.0 |
+| AndroidX TVProvider (`androidx.tvprovider:tvprovider`) | continue watching row | Apache-2.0 |
 | kotlinx.serialization | config persistence | Apache-2.0 |
 
 ## Content that is *not* distributed

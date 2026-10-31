@@ -100,6 +100,23 @@
     <string name="size_l">Large</string>
     <string name="size_xl">XL</string>
 
+    <!-- Settings: continue watching -->
+    <string name="item_continue_watching">Continue watching</string>
+    <string name="item_continue_watching_sub">Extra row with the movies and episodes your apps paused</string>
+    <string name="cw_row_label">Continue watching</string>
+    <string name="cw_show_row">Show continue watching row</string>
+    <string name="cw_show_row_sub">Cards come from the apps that publish Watch Next data</string>
+    <string name="cw_cards">Cards in the row</string>
+    <string name="cw_sources">Sources</string>
+    <string name="cw_source_sub">%1$d cards</string>
+    <string name="cw_sources_none">No app is publishing continue-watching cards right now. The list fills in as you use your apps — Netflix for example never publishes any.</string>
+    <string name="cw_grant">Grant access to TV listings</string>
+    <string name="cw_grant_sub">Needed to read which movies and episodes your apps paused</string>
+    <string name="cw_grant_hint">If no dialog appears, grant it from a computer:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Poster images are downloaded from the servers of the publishing apps when needed.</string>
+    <string name="cw_season_ep">S%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
+
     <!-- Settings: app list -->
     <string name="app_hint">OK launches · ⓘ app info · bin uninstalls</string>
     <string name="no_section">no section</string>

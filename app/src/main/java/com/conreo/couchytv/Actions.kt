@@ -45,6 +45,21 @@ object Actions {
         runCatching { am.killBackgroundProcesses(pkg) }
     }
 
+    /**
+     * Continue-watching card: resume the exact content through the publisher's
+     * `intent_uri` ("intent:" scheme, written by the Watch Next API), falling
+     * back to simply opening the app when the URI is missing, unparseable or
+     * no longer resolvable (stale rows happen).
+     */
+    fun launchProgram(context: Context, pkg: String, intentUri: String?) {
+        val intent = intentUri
+            ?.let { runCatching { Intent.parseUri(it, Intent.URI_INTENT_SCHEME) }.getOrNull() }
+        if (intent != null) {
+            runCatching { context.startActivity(intent) }
+                .onFailure { launchApp(context, pkg) }
+        } else launchApp(context, pkg)
+    }
+
     fun openSystemSettings(context: Context) {
         runCatching { context.startActivity(Intent(Settings.ACTION_SETTINGS)) }
     }

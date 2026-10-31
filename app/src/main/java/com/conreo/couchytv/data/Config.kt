@@ -80,6 +80,13 @@ data class LauncherConfig(
     val language: String = "",
     /** 0 = carousel (fixed selection), 1 = grid, 2 = dock */
     val layout: Int = 2, // Dock
+    // ----- continue watching (Watch Next row) -----
+    /** master switch for the extra top row — off by default, like the aerials */
+    val continueWatching: Boolean = false,
+    /** index into CONTINUE_CARD_COUNTS (see ui/LauncherScreen.kt) */
+    val continueCardCount: Int = 2, // → 6 cards
+    /** source packages the user turned OFF (denylist; a package not listed here is enabled) */
+    val continueSources: Set<String> = emptySet(),
 )
 
 const val LAYOUT_CAROUSEL = 0

@@ -15,6 +15,11 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Continue Watching row (optional, off by default): reads OTHER apps'
+         Watch Next / Play Next entries from the system TV provider. Declaring
+         it grants nothing — it is a dangerous permission requested at runtime
+         from Settings › Continue watching. Without it the row simply stays off. -->
+    <uses-permission android:name="android.permission.READ_TV_LISTINGS" />
     <!-- Only used to stream the built-in aerial videos (Apple/Amazon CDNs).
          The launcher makes no other network requests. -->
     <uses-permission android:name="android.permission.INTERNET" />
