@@ -1145,28 +1145,57 @@ private fun ContinueWatchingScreen(
                 )
             }
             sources.forEach { source ->
-                // Denylist semantics: a package NOT in continueSources is on.
-                val enabled = source.pkg !in config.continueSources
-                val label = apps.firstOrNull { it.pkg == source.pkg }?.label ?: source.pkg
-                SettingsItem(
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            store.update { c ->
-                                c.copy(
-                                    continueSources = if (source.pkg in c.continueSources)
-                                        c.continueSources - source.pkg
-                                    else c.continueSources + source.pkg,
-                                )
+                val appLabel = apps.firstOrNull { it.pkg == source.pkg }?.label ?: source.pkg
+                // Grouped by app: one Watch Next toggle (if the app publishes
+                // the system row) and one toggle per preview channel.
+                SectionLabel(appLabel)
+                if (source.watchNext > 0) {
+                    val enabled = source.pkg !in config.continueSources
+                    SettingsItem(
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                store.update { c ->
+                                    c.copy(
+                                        continueSources = if (source.pkg in c.continueSources)
+                                            c.continueSources - source.pkg
+                                        else c.continueSources + source.pkg,
+                                    )
+                                }
                             }
-                        }
-                    },
-                    headlineContent = { Text(label) },
-                    supportingContent = {
-                        Text(stringResource(R.string.cw_source_sub, source.cards))
-                    },
-                    trailingContent = { CheckMark(checked = enabled) },
-                )
+                        },
+                        headlineContent = { Text(stringResource(R.string.cw_watch_next)) },
+                        supportingContent = {
+                            Text(stringResource(R.string.cw_source_sub, source.watchNext))
+                        },
+                        trailingContent = { CheckMark(checked = enabled) },
+                    )
+                }
+                source.channels.forEach { channel ->
+                    // Denylist semantics: a "pkg|channelId" NOT in
+                    // continueChannels is on.
+                    val key = "${source.pkg}|${channel.channelId}"
+                    val enabled = key !in config.continueChannels
+                    SettingsItem(
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                store.update { c ->
+                                    c.copy(
+                                        continueChannels = if (key in c.continueChannels)
+                                            c.continueChannels - key
+                                        else c.continueChannels + key,
+                                    )
+                                }
+                            }
+                        },
+                        headlineContent = { Text(channel.name) },
+                        supportingContent = {
+                            Text(stringResource(R.string.cw_source_sub, channel.cards))
+                        },
+                        trailingContent = { CheckMark(checked = enabled) },
+                    )
+                }
             }
             Text(
                 stringResource(R.string.cw_network_note),

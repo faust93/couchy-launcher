@@ -109,6 +109,7 @@
     <string name="cw_cards">Cards in the row</string>
     <string name="cw_sources">Sources</string>
     <string name="cw_source_sub">%1$d cards</string>
+    <string name="cw_watch_next">Watch Next</string>
     <string name="cw_sources_none">No app is publishing continue-watching cards right now. The list fills in as you use your apps — Netflix for example never publishes any.</string>
     <string name="cw_grant">Grant access to TV listings</string>
     <string name="cw_grant_sub">Needed to read which movies and episodes your apps paused</string>

@@ -56,8 +56,12 @@ fun ContinueCard(
         !episode.isNullOrBlank() -> stringResource(R.string.cw_episode_only, episode)
         else -> null
     }
-    val subtitle = listOfNotNull(episodeText, sourceLabel.ifBlank { null })
-        .joinToString(" · ")
+    val subtitle = listOfNotNull(
+        episodeText,
+        // Preview-channel cards carry the channel name ("History", "Popular") —
+        // it is more informative than repeating the app name.
+        entry.channelName?.ifBlank { null } ?: sourceLabel.ifBlank { null },
+    ).joinToString(" · ")
 
     CardSurface(
         accent = accent,

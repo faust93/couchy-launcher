@@ -386,11 +386,7 @@ fun LauncherApp(rescanTick: Int) {
         value = if (!config.continueWatching) emptyList() else {
             val installed = apps.mapTo(HashSet()) { it.pkg }
             withContext(Dispatchers.IO) {
-                ContinueWatching.load(
-                    context.applicationContext, config, installed,
-                    CONTINUE_CARD_COUNTS
-                        .getOrElse(config.continueCardCount) { CONTINUE_CARD_COUNTS[3] },
-                )
+                ContinueWatching.load(context.applicationContext, config, installed, continueCount)
             }.also { ContinueWatching.requestPosters(context.applicationContext, it) }
         }
     }
@@ -1062,7 +1058,10 @@ private fun CarouselSection(
  * horizontal row with the 44dp start margin and the same pivot scrolling),
  * so it reads as a native part of the home screen.
  */
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@OptIn(
+    androidx.compose.foundation.ExperimentalFoundationApi::class,
+    androidx.compose.ui.ExperimentalComposeUiApi::class,
+)
 @Composable
 private fun ContinueRow(
     entries: List<ContinueEntry>,
@@ -1118,7 +1117,12 @@ private fun ContinueRow(
         ) {
             LazyRow(
                 state = state,
-                modifier = Modifier.airMouseDragScroll(state, Orientation.Horizontal),
+                // Restore the last-focused card when focus returns from another
+                // app: the outer LazyColumn's restorer can only re-enter this
+                // item, and without one here the row would end up unfocused.
+                modifier = Modifier
+                    .airMouseDragScroll(state, Orientation.Horizontal)
+                    .focusRestorer(),
                 contentPadding = PaddingValues(horizontal = 44.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(gap),
             ) {

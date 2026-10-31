@@ -84,9 +84,11 @@ data class LauncherConfig(
     /** master switch for the extra top row — off by default, like the aerials */
     val continueWatching: Boolean = false,
     /** index into CONTINUE_CARD_COUNTS (see ui/LauncherScreen.kt) */
-    val continueCardCount: Int = 2, // → 6 cards
+    val continueCardCount: Int = 2, // → 5 cards
     /** source packages the user turned OFF (denylist; a package not listed here is enabled) */
     val continueSources: Set<String> = emptySet(),
+    /** preview channels the user turned OFF, keyed "package|channelId" (denylist) */
+    val continueChannels: Set<String> = emptySet(),
 )
 
 const val LAYOUT_CAROUSEL = 0

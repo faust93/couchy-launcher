@@ -37,7 +37,7 @@ One screen, remote-driven, for 1080p and 4K TVs. No network requests out of the 
 ## Features
 
 - **Three layouts** — Carousel, Grid, or a floating glass Dock (press **Down** to expand to the full grid).
-- **Continue watching row** (optional, off by default) — an extra row of 16:9 cards resuming the movies and episodes your apps paused, read from Android TV's Watch Next data. Choose the card count and turn individual source apps on or off.
+- **Continue watching row** (optional, off by default) — an extra row of 16:9 cards resuming the movies and episodes your apps paused. Read from Android TV's **Watch Next** table *and* from the **preview channels** apps publish (many players expose their history/bookmarks/popular lists there instead). Choose the card count and toggle each app or channel individually.
 - **Sections** you rename, reorder and fill; an app can appear in several. New installs go to the first section.
 - **Wallpapers** — gradients, your own photo, a looping video, or optional built-in aerial videos (Apple / Amazon / community, streamed only when enabled), with speed control and cross-fades.
 - **Save & load** your full configuration — categories, layout, wallpaper, and all settings — as a JSON file.
@@ -56,7 +56,9 @@ The built-in aerial video wallpapers are **opt-in and off by default**. When ena
 
 ## ⚠️ Continue watching notice
 
-The continue-watching row is **opt-in and off by default**. When enabled (and after granting the *TV listings* permission from **Settings → Continue watching**), Couchy reads the *Watch Next* entries your streaming apps publish and shows them as resume cards. Poster images are downloaded **from the servers of the publishing apps** (usually their CDNs) when a card is shown — that is the only network use of this feature. You can turn each source app off individually; without any source, nothing is fetched.
+The continue-watching row is **opt-in and off by default**. When enabled (and after granting the *TV listings* permission from **Settings → Continue watching**), Couchy reads the *Watch Next* entries and the *preview channels* your apps publish, and shows them as cards. Poster images are downloaded **from the servers of the publishing apps** (usually their CDNs) when a card is shown — that is the only network use of this feature. Every app and every channel can be turned off individually; without any enabled source, nothing is fetched.
+
+Note that a preview channel is whatever the app decides to publish — some are true "continue watching" lists, others are bookmarks or "popular" recommendations, and a few are not video at all (e.g. a game-streaming shortcut). Use the per-channel toggles to keep only the lists you want.
 
 ---
 
@@ -135,7 +137,7 @@ No ads, analytics, accounts or background services. The only network use is opti
 <summary>Click to expand</summary>
 
 **v1.1.0**
-- Optional "Continue watching" row: resume cards from your apps' Watch Next data (opt-in, per-source toggles, adjustable card count)
+- Optional "Continue watching" row: resume cards from Watch Next **and** the preview channels apps publish (opt-in, per-app and per-channel toggles, adjustable card count)
 
 **v1.0.6**
 - Smoother cold start (limitedParallelism scan, 2-frame boot fade)
@@ -221,7 +223,7 @@ https://github.com/user-attachments/assets/6f21913e-1948-4543-9983-64dc68c602fa
 ## 功能
 
 - **三种布局**——轮播、网格，或悬浮玻璃底栏 Dock（按「下」展开为完整网格）。
-- **继续观看行**（可选，默认关闭）——额外一行 16:9 卡片，续播你的应用暂停的电影和剧集（读取 Android TV 的 Watch Next 数据）。可调整卡片数量，并单独开关各个来源应用。
+- **继续观看行**（可选，默认关闭）——额外一行 16:9 卡片，续播你的应用暂停的电影和剧集。数据来自 Android TV 的 **Watch Next** 表 **以及** 应用发布的**预览频道**（许多播放器把历史记录 / 书签 / 热门列表放在那里）。可调整卡片数量，并单独开关每个应用或频道。
 - **分区**可自行重命名、排序、填充；一个应用可归入多个分区。新安装的应用进入第一个分区。
 - **壁纸**——渐变、你自己的照片、循环视频，或可选的内置航拍视频（Apple / Amazon / 社区，仅在开启时才联网），带速度控制与淡入淡出。
 - **可调**图标大小、间距、圆角、界面缩放、暗化，以及可选的玻璃状态栏面板。
@@ -237,7 +239,9 @@ https://github.com/user-attachments/assets/6f21913e-1948-4543-9983-64dc68c602fa
 
 ## ⚠️ 继续观看说明
 
-继续观看行是**可选功能，默认关闭**。启用后（并在 **设置 → 继续观看** 中授予「电视节目单」权限），Couchy 会读取流媒体应用发布的 Watch Next 条目，以续播卡片的形式展示。海报图片会在显示卡片时从**发布应用的服务器**（通常是其 CDN）下载——这是该功能唯一的网络用途。你可以单独关闭每个来源应用；没有任何来源时，不会下载任何内容。
+继续观看行是**可选功能，默认关闭**。启用后（并在 **设置 → 继续观看** 中授予「电视节目单」权限），Couchy 会读取应用发布的 Watch Next 条目和**预览频道**，并以卡片形式展示。海报图片会在显示卡片时从**发布应用的服务器**（通常是其 CDN）下载——这是该功能唯一的网络用途。你可以单独关闭每个应用和每个频道；没有任何启用的来源时，不会下载任何内容。
+
+注意：预览频道的内容由应用自行决定——有些是真正的「继续观看」，有些是书签或「热门」推荐，少数甚至不是视频（例如游戏串流的快捷方式）。用按频道开关只保留你想要的列表。
 
 ---
 

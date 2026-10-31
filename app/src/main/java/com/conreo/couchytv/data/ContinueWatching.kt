@@ -56,10 +56,34 @@ data class ContinueEntry(
     val tile: Color,
     /** publisher's `intent_uri` ("intent:" scheme) — resume straight into playback */
     val intentUri: String?,
+    /** preview-channel rows only: the channel this card came from (0 for Watch Next) */
+    val channelId: Long = 0L,
+    /** preview-channel rows only: the channel's display name (null for Watch Next) */
+    val channelName: String? = null,
 )
 
-/** A package that currently publishes Watch Next rows, and how many. */
-data class CwSource(val pkg: String, val cards: Int)
+/** One preview channel published by an app (the "Channels on the home screen" API). */
+@Immutable
+data class CwChannel(
+    val channelId: Long,
+    val name: String,
+    val cards: Int,
+)
+
+/**
+ * An installed app that publishes continue-watching content, grouped for the
+ * settings screen: Watch Next rows (one toggle per app) plus the preview
+ * channels it publishes (one toggle per channel — a channel can be "History"
+ * or "Popular", and only the user knows which ones belong in the row).
+ */
+@Immutable
+data class CwSource(
+    val pkg: String,
+    val watchNext: Int,
+    val channels: List<CwChannel>,
+) {
+    val isEmpty: Boolean get() = watchNext == 0 && channels.isEmpty()
+}
 
 /**
  * Reads the system's Watch Next ("Play Next" / "Continue watching") table.
@@ -91,6 +115,9 @@ object ContinueWatching {
     @Volatile private var unsupported = false
     /** Projection that worked on this device — remembered so later refreshes skip the tiers. */
     @Volatile private var workingProjection: Array<String>? = null
+    /** Same, for the preview-channel table (independent: one may fail alone). */
+    @Volatile private var previewProjection: Array<String>? = null
+    @Volatile private var previewUnsupported = false
     /** Last list handed out — returned as-is when unchanged, so Compose skips the row. */
     @Volatile private var lastList: List<ContinueEntry>? = null
 
@@ -128,6 +155,43 @@ object ContinueWatching {
         ),
     )
 
+    /**
+     * Preview-channel projections, tiered the same way. These rows come from
+     * the app-owned "channels on the home screen" API — many apps publish
+     * their history/bookmarks/popular lists there instead of Watch Next.
+     */
+    private val PREVIEW_TIERS = listOf(
+        arrayOf(
+            BaseColumns._ID,
+            TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID,
+            TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
+            TvContractCompat.PreviewPrograms.COLUMN_TITLE,
+            TvContractCompat.PreviewPrograms.COLUMN_INTENT_URI,
+            TvContractCompat.PreviewPrograms.COLUMN_POSTER_ART_URI,
+            TvContractCompat.PreviewPrograms.COLUMN_THUMBNAIL_URI,
+            TvContractCompat.PreviewPrograms.COLUMN_SEASON_DISPLAY_NUMBER,
+            TvContractCompat.PreviewPrograms.COLUMN_EPISODE_DISPLAY_NUMBER,
+            TvContractCompat.PreviewPrograms.COLUMN_DURATION_MILLIS,
+            TvContractCompat.PreviewPrograms.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
+            TvContractCompat.PreviewPrograms.COLUMN_BROWSABLE,
+        ),
+        arrayOf(
+            BaseColumns._ID,
+            TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID,
+            TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
+            TvContractCompat.PreviewPrograms.COLUMN_TITLE,
+            TvContractCompat.PreviewPrograms.COLUMN_INTENT_URI,
+            TvContractCompat.PreviewPrograms.COLUMN_POSTER_ART_URI,
+            TvContractCompat.PreviewPrograms.COLUMN_THUMBNAIL_URI,
+        ),
+        arrayOf(
+            BaseColumns._ID,
+            TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID,
+            TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
+            TvContractCompat.PreviewPrograms.COLUMN_TITLE,
+        ),
+    )
+
     /** Whether the dangerous READ_TV_LISTINGS permission is currently held. */
     fun hasPermission(context: Context): Boolean =
         if (Build.VERSION.SDK_INT >= 23) {
@@ -140,9 +204,20 @@ object ContinueWatching {
         }
 
     /**
-     * The cards to show: installed sources the user has not disabled, most
-     * recently engaged first, capped at [count]. Call from a background
-     * dispatcher (it does its own IO hop anyway).
+     * The cards to show: installed sources the user has not disabled, capped
+     * at [count].
+     *
+     * Two surfaces are merged:
+     *  • Watch Next — one system-managed row, with real engagement timestamps;
+     *  • preview channels — app-owned rows, with no timestamps at all.
+     *
+     * Because the preview rows carry no recency signal and one app may publish
+     * hundreds of them, candidates are interleaved **round-robin across apps**
+     * (one card per app per pass) so every publishing app gets a card before
+     * any app gets a second — otherwise a handful of chatty publishers would
+     * fill a 5-card row and the preview-only apps would never appear.
+     *
+     * Call from a background dispatcher (it does its own IO hop anyway).
      */
     suspend fun load(
         context: Context,
@@ -152,29 +227,105 @@ object ContinueWatching {
     ): List<ContinueEntry> {
         if (!config.continueWatching || count <= 0) return emptyList()
         if (!hasPermission(context) || unsupported) return emptyList()
-        val rows = queryRows(context) ?: return emptyList()
-        val disabled = config.continueSources
-        val fresh = rows.asSequence()
-            .filter { it.pkg != context.packageName && it.pkg in installed && it.pkg !in disabled }
-            .filter { it.title.isNotBlank() }
-            // Newest engagement first; a stable sort keeps provider order among
-            // date-less rows (stamp 0) — and pushes them to the end.
+
+        val disabledApps = config.continueSources
+        val disabledChannels = config.continueChannels
+
+        fun eligible(pkg: String, title: String): Boolean =
+            pkg != context.packageName && pkg in installed && title.isNotBlank()
+
+        val watchNext = (queryRows(context) ?: emptyList()).asSequence()
+            .filter { eligible(it.pkg, it.title) && it.pkg !in disabledApps }
             .sortedByDescending { it.stamp }
-            .take(count)
-            .map(::toEntry)
             .toList()
+
+        val previews = (queryPreviewRows(context) ?: emptyList()).asSequence()
+            .filter {
+                eligible(it.pkg, it.title) &&
+                    it.pkg !in disabledApps &&
+                    (it.channelId == 0L || "${it.pkg}|${it.channelId}" !in disabledChannels)
+            }
+            // Newest inserted row first inside a channel (the provider exposes
+            // no engagement time; insertion order is the only recency hint).
+            .sortedByDescending { it.id }
+            .toList()
+
+        // Per-app candidate streams. Watch Next first (it has real recency),
+        // then this app's preview channels, newest-created channel first.
+        val wnByApp = watchNext.groupBy { it.pkg }
+        val previewByApp = previews.groupBy { it.pkg }
+        val apps = (wnByApp.keys + previewByApp.keys).distinct()
+        // Drop a title duplicated by two surfaces (Watch Next wins: it's first
+        // in the stream), so the same movie doesn't take two cards.
+        val seen = HashSet<String>()
+        val streams = apps.map { pkg ->
+            val wn = wnByApp[pkg].orEmpty()
+            val channels = previewByApp[pkg].orEmpty()
+                .groupBy { it.channelId }
+                .toSortedMap(compareByDescending { it })
+                .values
+                .flatMap { rows -> rows }
+            (wn + channels).filter {
+                seen.add(it.pkg + "|" + it.title.lowercase(java.util.Locale.ROOT))
+            }
+        }.filter { it.isNotEmpty() }
+            .sortedWith(
+                compareByDescending<List<RawRow>> { it.firstOrNull()?.stamp ?: 0L }
+                    .thenBy { it.firstOrNull()?.pkg.orEmpty() }
+            )
+
+        val picked = ArrayList<RawRow>(count)
+        var pass = 0
+        while (picked.size < count) {
+            var added = false
+            for (stream in streams) {
+                val row = stream.getOrNull(pass) ?: continue
+                picked += row
+                added = true
+                if (picked.size >= count) break
+            }
+            if (!added) break
+            pass++
+        }
+
+        val fresh = picked.map(::toEntry)
         // Same content → SAME list instance → nothing recomposes.
         val prev = lastList
         return (if (prev != null && fresh == prev) prev else fresh).also { lastList = it }
     }
 
-    /** Which packages publish Watch Next rows right now (for the settings screen). */
+    /**
+     * Which apps publish continue-watching content right now, grouped for the
+     * settings screen: Watch Next row counts and per-channel preview counts.
+     */
     suspend fun sources(context: Context): List<CwSource> {
         if (!hasPermission(context) || unsupported) return emptyList()
-        val rows = queryRows(context) ?: return emptyList()
-        return rows.groupBy { it.pkg }
-            .map { (pkg, list) -> CwSource(pkg, list.size) }
-            .sortedWith(compareByDescending<CwSource> { it.cards }.thenBy { it.pkg })
+        val watchNext = (queryRows(context) ?: emptyList())
+            .filter { it.pkg != context.packageName && it.title.isNotBlank() }
+            .groupingBy { it.pkg }
+            .eachCount()
+        val previews = (queryPreviewRows(context) ?: emptyList())
+            .filter { it.pkg != context.packageName && it.title.isNotBlank() }
+
+        val packages = (watchNext.keys + previews.map { it.pkg }.distinct()).distinct()
+        return packages.map { pkg ->
+            CwSource(
+                pkg = pkg,
+                watchNext = watchNext[pkg] ?: 0,
+                channels = previews.filter { it.pkg == pkg }
+                    .groupBy { it.channelId }
+                    .map { (channelId, rows) ->
+                        CwChannel(
+                            channelId = channelId,
+                            name = rows.firstOrNull()?.channelName
+                                ?.ifBlank { null } ?: channelId.toString(),
+                            cards = rows.size,
+                        )
+                    }
+                    .sortedBy { it.channelId },
+            )
+        }.filter { !it.isEmpty }
+            .sortedWith(compareByDescending<CwSource> { it.watchNext }.thenBy { it.pkg })
     }
 
     /** Queue poster downloads for [entries]; already-cached and backing-off URIs are skipped. */
@@ -203,6 +354,8 @@ object ContinueWatching {
         val posterUri: String?,
         val stamp: Long,
         val intentUri: String?,
+        val channelId: Long = 0L,
+        val channelName: String? = null,
     )
 
     /** Runs the query with tiered projections; null = no TV provider / no access. */
@@ -225,6 +378,45 @@ object ContinueWatching {
         unsupported = true
         return null
     }
+
+    /**
+     * Preview-channel rows, with channel display names resolved in a second
+     * (small) query. Returns empty on failure: this surface is optional, and
+     * a device without it must still get the Watch Next row.
+     */
+    private fun queryPreviewRows(context: Context): List<RawRow>? {
+        if (previewUnsupported) return null
+        val resolver = context.contentResolver
+        val tiers = previewProjection?.let { listOf(it) } ?: PREVIEW_TIERS
+        for (projection in tiers) {
+            val rows = runCatching {
+                resolver.query(
+                    TvContractCompat.PreviewPrograms.CONTENT_URI,
+                    projection, null, null, null,
+                )?.use { cursor -> readPreviewRows(cursor) }
+            }.getOrNull() ?: continue
+            previewProjection = projection
+            val names = channelNames(context)
+            return rows.map { it.copy(channelName = names[it.channelId]) }
+        }
+        previewUnsupported = true
+        return null
+    }
+
+    /** channelId -> display name. Queried once per refresh; tables are small. */
+    private fun channelNames(context: Context): Map<Long, String> = runCatching {
+        context.contentResolver.query(
+            TvContractCompat.Channels.CONTENT_URI,
+            arrayOf(BaseColumns._ID, TvContractCompat.Channels.COLUMN_DISPLAY_NAME),
+            null, null, null,
+        )?.use { c ->
+            val out = HashMap<Long, String>()
+            if (c.moveToFirst()) do {
+                out[c.getLong(0)] = c.getString(1) ?: ""
+            } while (c.moveToNext())
+            out
+        }
+    }.getOrNull() ?: emptyMap()
 
     private fun readRows(c: Cursor): List<RawRow> {
         if (!c.moveToFirst()) return emptyList()
@@ -249,6 +441,36 @@ object ContinueWatching {
         return rows
     }
 
+    private fun readPreviewRows(c: Cursor): List<RawRow> {
+        if (!c.moveToFirst()) return emptyList()
+        val rows = ArrayList<RawRow>(c.count)
+        do {
+            // browsable=0 rows exist but are hidden from the home screen; skip
+            // them rather than surfacing something the publisher marked private.
+            if (c.getColumnIndex(TvContractCompat.PreviewPrograms.COLUMN_BROWSABLE) >= 0 &&
+                c.num(TvContractCompat.PreviewPrograms.COLUMN_BROWSABLE) == 0L
+            ) continue
+            rows += RawRow(
+                id = c.num(BaseColumns._ID),
+                pkg = c.str(TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME).orEmpty(),
+                title = c.str(TvContractCompat.PreviewPrograms.COLUMN_TITLE).orEmpty(),
+                season = c.str(TvContractCompat.PreviewPrograms.COLUMN_SEASON_DISPLAY_NUMBER),
+                episode = c.str(TvContractCompat.PreviewPrograms.COLUMN_EPISODE_DISPLAY_NUMBER),
+                progress = progressOf(c),
+                posterUri = c.str(TvContractCompat.PreviewPrograms.COLUMN_POSTER_ART_URI)
+                    ?.ifBlank { null }
+                    ?: c.str(TvContractCompat.PreviewPrograms.COLUMN_THUMBNAIL_URI)
+                        ?.ifBlank { null },
+                // No engagement timestamp on this table — row order is the only hint.
+                stamp = 0L,
+                intentUri = c.str(TvContractCompat.PreviewPrograms.COLUMN_INTENT_URI)
+                    ?.ifBlank { null },
+                channelId = c.num(TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID),
+            )
+        } while (c.moveToNext())
+        return rows
+    }
+
     private fun progressOf(c: Cursor): Float? {
         val duration = c.num(TvContractCompat.PreviewProgramColumns.COLUMN_DURATION_MILLIS)
         val position = c.num(TvContractCompat.PreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS)
@@ -267,7 +489,7 @@ object ContinueWatching {
     }
 
     private fun toEntry(r: RawRow) = ContinueEntry(
-        key = "${r.pkg}|${r.id}|${r.stamp}",
+        key = "${r.pkg}|${r.channelId}|${r.id}",
         pkg = r.pkg,
         title = r.title,
         season = r.season,
@@ -276,6 +498,8 @@ object ContinueWatching {
         posterUri = r.posterUri,
         tile = tileColor(r.pkg),
         intentUri = r.intentUri,
+        channelId = r.channelId,
+        channelName = r.channelName,
     )
 
     // ---------------------------------------------------------------- posters
