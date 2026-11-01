@@ -193,6 +193,7 @@ object ContinueWatching {
             TvContractCompat.PreviewPrograms.COLUMN_DURATION_MILLIS,
             TvContractCompat.PreviewPrograms.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
             TvContractCompat.PreviewPrograms.COLUMN_BROWSABLE,
+            TvContractCompat.PreviewPrograms.COLUMN_WEIGHT,
         ),
         arrayOf(
             BaseColumns._ID,
@@ -268,9 +269,8 @@ object ContinueWatching {
                 eligible(it.pkg, it.title) &&
                     (it.channelId == 0L || "${it.pkg}|${it.channelId}" !in disabledChannels)
             }
-            // Newest inserted row first inside a channel (the provider exposes
-            // no engagement time; insertion order is the only recency hint).
-            .sortedByDescending { it.id }
+            // Rows are ordered per channel below; keep a stable base order.
+            .sortedBy { it.id }
             .toList()
 
         // Per-app candidate streams. Watch Next first (it has real recency),
@@ -287,7 +287,19 @@ object ContinueWatching {
                 .groupBy { it.channelId }
                 .toSortedMap(compareByDescending { it })
                 .values
-                .flatMap { rows -> rows }
+                .flatMap { rows ->
+                    // Take the channel from its BEGINNING. Publishers order
+                    // their list with `weight` (higher = earlier, e.g. NUM:
+                    // 100..1); when that hint is absent, the provider's own
+                    // insertion order is the list — not its tail.
+                    if (rows.any { it.weight != null }) {
+                        rows.sortedWith(
+                            compareByDescending<RawRow> { it.weight ?: 0L }.thenBy { it.id }
+                        )
+                    } else {
+                        rows.sortedBy { it.id }
+                    }
+                }
             val candidates = (wn + channels).filter {
                 seen.add(it.pkg + "|" + it.title.lowercase(java.util.Locale.ROOT))
             }
@@ -399,6 +411,8 @@ object ContinueWatching {
         val intentUri: String?,
         val channelId: Long = 0L,
         val channelName: String? = null,
+        /** publisher's ordering hint inside its channel (higher = earlier), null = unset */
+        val weight: Long? = null,
     )
 
     /** Runs the query with tiered projections; null = no TV provider / no access. */
@@ -509,6 +523,7 @@ object ContinueWatching {
                 intentUri = c.str(TvContractCompat.PreviewPrograms.COLUMN_INTENT_URI)
                     ?.ifBlank { null },
                 channelId = c.num(TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID),
+                weight = c.numOrNull(TvContractCompat.PreviewPrograms.COLUMN_WEIGHT),
             )
         } while (c.moveToNext())
         return rows
@@ -529,6 +544,11 @@ object ContinueWatching {
     private fun Cursor.num(column: String): Long {
         val i = getColumnIndex(column)
         return if (i < 0 || isNull(i)) 0L else getLong(i)
+    }
+
+    private fun Cursor.numOrNull(column: String): Long? {
+        val i = getColumnIndex(column)
+        return if (i < 0 || isNull(i)) null else getLong(i)
     }
 
     private fun toEntry(r: RawRow) = ContinueEntry(
