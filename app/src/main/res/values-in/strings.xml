@@ -179,4 +179,26 @@
     <string name="cd_move_down">Turunkan</string>
     <string name="cd_delete_section">Hapus bagian</string>
     <string name="about_source">Kode sumber</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Lanjutkan menonton</string>
+    <string name="item_continue_watching_sub">Baris tambahan berisi film dan episode yang dijeda oleh aplikasi Anda</string>
+    <string name="cw_row_label">Lanjutkan menonton</string>
+    <string name="cw_show_row">Tampilkan baris Lanjutkan menonton</string>
+    <string name="cw_show_row_sub">Kartu berasal dari aplikasi yang menerbitkan data Watch Next</string>
+    <string name="cw_cards">Kartu di baris</string>
+    <string name="cw_card_size">Ukuran kartu</string>
+    <string name="cw_card_size_sub">Tidak bergantung pada ukuran ikon aplikasi</string>
+    <string name="cw_app_cards">Kartu dari aplikasi ini</string>
+    <string name="cw_all">Semua</string>
+    <string name="cw_sources">Sumber</string>
+    <string name="cw_source_sub">%1$d kartu</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Tidak ada aplikasi yang menerbitkan kartu Lanjutkan menonton saat ini. Daftar terisi saat Anda menggunakan aplikasi — misalnya Netflix tidak pernah menerbitkannya.</string>
+    <string name="cw_grant">Beri akses ke daftar TV</string>
+    <string name="cw_grant_sub">Diperlukan untuk membaca film dan episode yang dijeda aplikasi Anda</string>
+    <string name="cw_grant_hint">Jika tidak ada dialog, berikan izin dari komputer:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Gambar poster diunduh dari server aplikasi penerbit saat diperlukan.</string>
+    <string name="cw_season_ep">S%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
 </resources>

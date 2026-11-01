@@ -134,8 +134,10 @@ private val ScrimBottom = Brush.verticalGradient(
 )
 /** Spacing steps between cards — 5 levels. */
 val GAP_SIZES = listOf(4.dp, 10.dp, 16.dp, 24.dp, 32.dp)
-/** Continue-watching card counts (index stored in config.continueCardCount). */
-val CONTINUE_CARD_COUNTS = listOf(3, 4, 5, 6, 8, 10, 12)
+/** Continue-watching card counts (index stored in config.continueCardCount).
+ *  Presets step up to 50; existing indices keep their value when the list
+ *  grows, so saved configs stay valid. */
+val CONTINUE_CARD_COUNTS = listOf(3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50)
 /** Video wallpaper playback speeds (index stored in config.videoSpeed). */
 val VIDEO_SPEEDS = listOf(0.25f, 0.5f, 0.75f, 1f)
 /** Icon corner roundness steps (index stored in config.cornerRadius). */

@@ -179,4 +179,26 @@
     <string name="cd_move_down">아래로 이동</string>
     <string name="cd_delete_section">섹션 삭제</string>
     <string name="about_source">소스 코드</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">이어서 보기</string>
+    <string name="item_continue_watching_sub">앱에서 일시중지한 영화와 에피소드를 위한 추가 행</string>
+    <string name="cw_row_label">이어서 보기</string>
+    <string name="cw_show_row">이어서 보기 행 표시</string>
+    <string name="cw_show_row_sub">카드는 Watch Next 데이터를 제공하는 앱에서 가져옵니다</string>
+    <string name="cw_cards">행의 카드</string>
+    <string name="cw_card_size">카드 크기</string>
+    <string name="cw_card_size_sub">앱 아이콘 크기와 무관</string>
+    <string name="cw_app_cards">이 앱의 카드</string>
+    <string name="cw_all">모두</string>
+    <string name="cw_sources">소스</string>
+    <string name="cw_source_sub">카드 %1$d개</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">현재 이어서 보기 카드를 게시하는 앱이 없습니다. 앱을 사용하면 목록이 채워집니다. 예를 들어 Netflix는 카드를 게시하지 않습니다.</string>
+    <string name="cw_grant">TV 편성표 접근 허용</string>
+    <string name="cw_grant_sub">앱에서 일시중지한 영화와 에피소드를 읽는 데 필요합니다</string>
+    <string name="cw_grant_hint">대화상자가 표시되지 않으면 컴퓨터에서 권한을 부여하세요:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">포스터 이미지는 필요할 때 게시 앱의 서버에서 다운로드됩니다.</string>
+    <string name="cw_season_ep">S%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
 </resources>

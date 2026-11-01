@@ -1164,6 +1164,23 @@ private fun ContinueWatchingScreen(
                 // Grouped by app: one Watch Next toggle (if the app publishes
                 // the system row) and one toggle per preview channel.
                 SectionLabel(appLabel)
+                val appCap = config.continueAppLimits[source.pkg] ?: 0
+                SelectorRow(
+                    label = stringResource(R.string.cw_app_cards),
+                    value = if (appCap == 0) stringResource(R.string.cw_all) else appCap.toString(),
+                    steps = com.conreo.couchytv.data.CW_APP_LIMIT_MAX + 1,
+                    current = appCap.coerceIn(0, com.conreo.couchytv.data.CW_APP_LIMIT_MAX),
+                    onSelect = { v ->
+                        scope.launch {
+                            store.update { c ->
+                                c.copy(
+                                    continueAppLimits = if (v == 0) c.continueAppLimits - source.pkg
+                                    else c.continueAppLimits + (source.pkg to v),
+                                )
+                            }
+                        }
+                    },
+                )
                 if (source.watchNext > 0) {
                     val enabled = source.pkg !in config.continueSources
                     SettingsItem(

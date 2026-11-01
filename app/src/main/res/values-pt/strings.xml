@@ -179,4 +179,26 @@
     <string name="cd_move_down">Mover para baixo</string>
     <string name="cd_delete_section">Excluir seção</string>
     <string name="about_source">Código-fonte</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Continuar a assistir</string>
+    <string name="item_continue_watching_sub">Linha extra com os filmes e episódios que as tuas apps pausaram</string>
+    <string name="cw_row_label">Continuar a assistir</string>
+    <string name="cw_show_row">Mostrar a linha Continuar a assistir</string>
+    <string name="cw_show_row_sub">Os cartões vêm das apps que publicam dados do Watch Next</string>
+    <string name="cw_cards">Cartões na linha</string>
+    <string name="cw_card_size">Tamanho dos cartões</string>
+    <string name="cw_card_size_sub">Independente do tamanho dos ícones</string>
+    <string name="cw_app_cards">Cartões desta app</string>
+    <string name="cw_all">Todos</string>
+    <string name="cw_sources">Origens</string>
+    <string name="cw_source_sub">%1$d cartões</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Nenhuma app está a publicar cartões de Continuar a assistir agora. A lista enche-se à medida que usas as apps — a Netflix, por exemplo, nunca publica nenhum.</string>
+    <string name="cw_grant">Permitir acesso à lista de TV</string>
+    <string name="cw_grant_sub">Necessário para ler quais filmes e episódios as tuas apps pausaram</string>
+    <string name="cw_grant_hint">Se não aparecer nenhuma janela, concede a permissão num computador:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">As imagens das capas são transferidas dos servidores das apps editoras quando necessário.</string>
+    <string name="cw_season_ep">T%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
 </resources>

@@ -179,4 +179,26 @@
     <string name="cd_move_down">Chuyển xuống</string>
     <string name="cd_delete_section">Xóa mục</string>
     <string name="about_source">Mã nguồn</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Xem tiếp</string>
+    <string name="item_continue_watching_sub">Hàng bổ sung cho phim và tập mà ứng dụng của bạn đã tạm dừng</string>
+    <string name="cw_row_label">Xem tiếp</string>
+    <string name="cw_show_row">Hiện hàng Xem tiếp</string>
+    <string name="cw_show_row_sub">Thẻ đến từ các ứng dụng công bố dữ liệu Watch Next</string>
+    <string name="cw_cards">Số thẻ trong hàng</string>
+    <string name="cw_card_size">Kích thước thẻ</string>
+    <string name="cw_card_size_sub">Độc lập với kích thước biểu tượng ứng dụng</string>
+    <string name="cw_app_cards">Thẻ từ ứng dụng này</string>
+    <string name="cw_all">Tất cả</string>
+    <string name="cw_sources">Nguồn</string>
+    <string name="cw_source_sub">%1$d thẻ</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Hiện không có ứng dụng nào công bố thẻ Xem tiếp. Danh sách sẽ đầy dần khi bạn dùng ứng dụng — ví dụ Netflix không bao giờ công bố.</string>
+    <string name="cw_grant">Cấp quyền truy cập danh sách TV</string>
+    <string name="cw_grant_sub">Cần để đọc phim và tập mà ứng dụng của bạn đã tạm dừng</string>
+    <string name="cw_grant_hint">Nếu không có hộp thoại, hãy cấp quyền từ máy tính:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Hình ảnh áp phích được tải từ máy chủ của ứng dụng công bố khi cần.</string>
+    <string name="cw_season_ep">S%1$s · T%2$s</string>
+    <string name="cw_episode_only">T%1$s</string>
 </resources>

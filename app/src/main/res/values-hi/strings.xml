@@ -179,4 +179,26 @@
     <string name="cd_move_down">नीचे ले जाएँ</string>
     <string name="cd_delete_section">सेक्शन हटाएँ</string>
     <string name="about_source">सोर्स कोड</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">देखना जारी रखें</string>
+    <string name="item_continue_watching_sub">आपके ऐप्स द्वारा रोकी गई फ़िल्मों और एपिसोड के लिए अतिरिक्त पंक्ति</string>
+    <string name="cw_row_label">देखना जारी रखें</string>
+    <string name="cw_show_row">देखना जारी रखें पंक्ति दिखाएँ</string>
+    <string name="cw_show_row_sub">कार्ड उन ऐप्स से आते हैं जो Watch Next डेटा प्रकाशित करते हैं</string>
+    <string name="cw_cards">पंक्ति में कार्ड</string>
+    <string name="cw_card_size">कार्ड का आकार</string>
+    <string name="cw_card_size_sub">ऐप आइकन आकार से स्वतंत्र</string>
+    <string name="cw_app_cards">इस ऐप से कार्ड</string>
+    <string name="cw_all">सभी</string>
+    <string name="cw_sources">स्रोत</string>
+    <string name="cw_source_sub">%1$d कार्ड</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">अभी कोई ऐप देखना जारी रखें कार्ड प्रकाशित नहीं कर रहा है। जैसे-जैसे आप ऐप्स इस्तेमाल करेंगे सूची भरती जाएगी — उदाहरण के लिए Netflix कभी कोई कार्ड प्रकाशित नहीं करता।</string>
+    <string name="cw_grant">टीवी सूची तक पहुँच दें</string>
+    <string name="cw_grant_sub">यह पढ़ने के लिए आवश्यक है कि आपके ऐप्स ने कौन सी फ़िल्में और एपिसोड रोके हैं</string>
+    <string name="cw_grant_hint">अगर कोई डायलॉग न दिखे, तो कंप्यूटर से अनुमति दें:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">पोस्टर छवियाँ ज़रूरत पड़ने पर प्रकाशक ऐप्स के सर्वर से डाउनलोड होती हैं।</string>
+    <string name="cw_season_ep">S%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
 </resources>

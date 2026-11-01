@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package com.conreo.couchytv.data
 
 import android.content.Context
@@ -30,6 +32,20 @@ import java.net.URL
 /** android.Manifest.permission.READ_TV_LISTINGS is hidden in the SDK — the
  *  contract string is stable and the manifest declares it by the same name. */
 private const val PERMISSION_READ_TV_LISTINGS = "android.permission.READ_TV_LISTINGS"
+
+/*
+ * Column names from TvContract.ProgramColumns. In androidx.tvprovider that
+ * interface is @RestrictTo(LIBRARY_GROUP_PREFIX), so referring to its
+ * constants fails the release lint (`RestrictedApi`), even though the values
+ * are part of the public framework `android.media.tv.TvContract` contract and
+ * have been stable since the table was introduced. Using the literal names
+ * keeps the release build lint-clean without a blanket suppression.
+ */
+private const val COL_TITLE = "title"
+private const val COL_POSTER_ART_URI = "poster_art_uri"
+private const val COL_THUMBNAIL_URI = "thumbnail_uri"
+private const val COL_SEASON_DISPLAY_NUMBER = "season_display_number"
+private const val COL_EPISODE_DISPLAY_NUMBER = "episode_display_number"
 
 /**
  * One continue-watching card: a Watch Next row published by an installed app.
@@ -85,6 +101,9 @@ data class CwSource(
     val isEmpty: Boolean get() = watchNext == 0 && channels.isEmpty()
 }
 
+/** Top of the per-app card cap selector: "All", then 1..[CW_APP_LIMIT_MAX]. */
+const val CW_APP_LIMIT_MAX = 50
+
 /**
  * Reads the system's Watch Next ("Play Next" / "Continue watching") table.
  *
@@ -127,31 +146,31 @@ object ContinueWatching {
         arrayOf(
             BaseColumns._ID,
             TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
-            TvContractCompat.WatchNextPrograms.COLUMN_TITLE,
+            COL_TITLE,
             TvContractCompat.PreviewProgramColumns.COLUMN_INTENT_URI,
-            TvContractCompat.WatchNextPrograms.COLUMN_POSTER_ART_URI,
-            TvContractCompat.WatchNextPrograms.COLUMN_THUMBNAIL_URI,
+            COL_POSTER_ART_URI,
+            COL_THUMBNAIL_URI,
             TvContractCompat.WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE,
             TvContractCompat.WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS,
             TvContractCompat.PreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
             TvContractCompat.PreviewProgramColumns.COLUMN_DURATION_MILLIS,
-            TvContractCompat.WatchNextPrograms.COLUMN_SEASON_DISPLAY_NUMBER,
-            TvContractCompat.WatchNextPrograms.COLUMN_EPISODE_DISPLAY_NUMBER,
+            COL_SEASON_DISPLAY_NUMBER,
+            COL_EPISODE_DISPLAY_NUMBER,
         ),
         // Pre-O providers: title/art/intent only, no progress, no episode info.
         arrayOf(
             BaseColumns._ID,
             TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
-            TvContractCompat.WatchNextPrograms.COLUMN_TITLE,
+            COL_TITLE,
             TvContractCompat.PreviewProgramColumns.COLUMN_INTENT_URI,
-            TvContractCompat.WatchNextPrograms.COLUMN_POSTER_ART_URI,
-            TvContractCompat.WatchNextPrograms.COLUMN_THUMBNAIL_URI,
+            COL_POSTER_ART_URI,
+            COL_THUMBNAIL_URI,
         ),
         // Last resort — a text-only row beats no row at all.
         arrayOf(
             BaseColumns._ID,
             TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
-            TvContractCompat.WatchNextPrograms.COLUMN_TITLE,
+            COL_TITLE,
         ),
     )
 
@@ -165,12 +184,12 @@ object ContinueWatching {
             BaseColumns._ID,
             TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID,
             TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
-            TvContractCompat.PreviewPrograms.COLUMN_TITLE,
+            COL_TITLE,
             TvContractCompat.PreviewPrograms.COLUMN_INTENT_URI,
-            TvContractCompat.PreviewPrograms.COLUMN_POSTER_ART_URI,
-            TvContractCompat.PreviewPrograms.COLUMN_THUMBNAIL_URI,
-            TvContractCompat.PreviewPrograms.COLUMN_SEASON_DISPLAY_NUMBER,
-            TvContractCompat.PreviewPrograms.COLUMN_EPISODE_DISPLAY_NUMBER,
+            COL_POSTER_ART_URI,
+            COL_THUMBNAIL_URI,
+            COL_SEASON_DISPLAY_NUMBER,
+            COL_EPISODE_DISPLAY_NUMBER,
             TvContractCompat.PreviewPrograms.COLUMN_DURATION_MILLIS,
             TvContractCompat.PreviewPrograms.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
             TvContractCompat.PreviewPrograms.COLUMN_BROWSABLE,
@@ -179,16 +198,16 @@ object ContinueWatching {
             BaseColumns._ID,
             TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID,
             TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
-            TvContractCompat.PreviewPrograms.COLUMN_TITLE,
+            COL_TITLE,
             TvContractCompat.PreviewPrograms.COLUMN_INTENT_URI,
-            TvContractCompat.PreviewPrograms.COLUMN_POSTER_ART_URI,
-            TvContractCompat.PreviewPrograms.COLUMN_THUMBNAIL_URI,
+            COL_POSTER_ART_URI,
+            COL_THUMBNAIL_URI,
         ),
         arrayOf(
             BaseColumns._ID,
             TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID,
             TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME,
-            TvContractCompat.PreviewPrograms.COLUMN_TITLE,
+            COL_TITLE,
         ),
     )
 
@@ -212,10 +231,10 @@ object ContinueWatching {
      *  • preview channels — app-owned rows, with no timestamps at all.
      *
      * Because the preview rows carry no recency signal and one app may publish
-     * hundreds of them, candidates are interleaved **round-robin across apps**
-     * (one card per app per pass) so every publishing app gets a card before
-     * any app gets a second — otherwise a handful of chatty publishers would
-     * fill a 5-card row and the preview-only apps would never appear.
+     * hundreds of them, each app's candidates are capped by its per-app limit
+     * (config.continueAppLimits). The row is then shared fairly between apps
+     * (one card per app per pass) but each app's cards are rendered as one
+     * **contiguous block** — all of app A's cards, then all of app B's, etc.
      *
      * Call from a background dispatcher (it does its own IO hop anyway).
      */
@@ -239,10 +258,14 @@ object ContinueWatching {
             .sortedByDescending { it.stamp }
             .toList()
 
+        // Preview channels are governed ONLY by the per-channel toggles. The
+        // per-app switch is labelled "Watch Next" and must not hide preview
+        // rows: an app can publish history/bookmarks channels while its Watch
+        // Next surface is switched off (the row would otherwise vanish no
+        // matter which channels the user enabled).
         val previews = (queryPreviewRows(context) ?: emptyList()).asSequence()
             .filter {
                 eligible(it.pkg, it.title) &&
-                    it.pkg !in disabledApps &&
                     (it.channelId == 0L || "${it.pkg}|${it.channelId}" !in disabledChannels)
             }
             // Newest inserted row first inside a channel (the provider exposes
@@ -265,27 +288,47 @@ object ContinueWatching {
                 .toSortedMap(compareByDescending { it })
                 .values
                 .flatMap { rows -> rows }
-            (wn + channels).filter {
+            val candidates = (wn + channels).filter {
                 seen.add(it.pkg + "|" + it.title.lowercase(java.util.Locale.ROOT))
             }
-        }.filter { it.isNotEmpty() }
+            // Per-app cap: the user can say "at most N cards from this app".
+            val cap = config.continueAppLimits[pkg]
+            pkg to if (cap != null && cap > 0 && cap < candidates.size) {
+                candidates.take(cap)
+            } else candidates
+        }.filter { it.second.isNotEmpty() }
             .sortedWith(
-                compareByDescending<List<RawRow>> { it.firstOrNull()?.stamp ?: 0L }
-                    .thenBy { it.firstOrNull()?.pkg.orEmpty() }
+                compareByDescending<Pair<String, List<RawRow>>> {
+                    it.second.firstOrNull()?.stamp ?: 0L
+                }.thenBy { it.first }
             )
 
-        val picked = ArrayList<RawRow>(count)
-        var pass = 0
-        while (picked.size < count) {
+        // Layout: cards stay in **contiguous per-app blocks**, but the row is
+        // shared fairly between apps. A plain sequential fill lets an early,
+        // uncapped publisher (a channel with 100 rows) consume the whole row,
+        // so apps later in the order — e.g. one whose Watch Next is disabled
+        // and whose channels therefore carry no timestamp — would never show.
+        // Fair-share quotas (one card per app per pass, bounded by each app's
+        // block) decide HOW MANY cards each app gets; the block order then
+        // decides WHERE they go, keeping every app's cards adjacent.
+        val quota = LinkedHashMap<String, Int>()
+        var remaining = count
+        while (remaining > 0) {
             var added = false
-            for (stream in streams) {
-                val row = stream.getOrNull(pass) ?: continue
-                picked += row
+            for ((pkg, stream) in streams) {
+                if ((quota[pkg] ?: 0) >= stream.size) continue
+                quota[pkg] = (quota[pkg] ?: 0) + 1
+                remaining--
                 added = true
-                if (picked.size >= count) break
+                if (remaining == 0) break
             }
             if (!added) break
-            pass++
+        }
+
+        val picked = ArrayList<RawRow>(count)
+        for ((pkg, stream) in streams) {
+            val n = quota[pkg] ?: 0
+            if (n > 0) picked.addAll(stream.subList(0, n))
         }
 
         val fresh = picked.map(::toEntry)
@@ -425,13 +468,13 @@ object ContinueWatching {
             rows += RawRow(
                 id = c.num(BaseColumns._ID),
                 pkg = c.str(TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME).orEmpty(),
-                title = c.str(TvContractCompat.WatchNextPrograms.COLUMN_TITLE).orEmpty(),
-                season = c.str(TvContractCompat.WatchNextPrograms.COLUMN_SEASON_DISPLAY_NUMBER),
-                episode = c.str(TvContractCompat.WatchNextPrograms.COLUMN_EPISODE_DISPLAY_NUMBER),
+                title = c.str(COL_TITLE).orEmpty(),
+                season = c.str(COL_SEASON_DISPLAY_NUMBER),
+                episode = c.str(COL_EPISODE_DISPLAY_NUMBER),
                 progress = progressOf(c),
-                posterUri = c.str(TvContractCompat.WatchNextPrograms.COLUMN_POSTER_ART_URI)
+                posterUri = c.str(COL_POSTER_ART_URI)
                     ?.ifBlank { null }
-                    ?: c.str(TvContractCompat.WatchNextPrograms.COLUMN_THUMBNAIL_URI)
+                    ?: c.str(COL_THUMBNAIL_URI)
                         ?.ifBlank { null },
                 stamp = c.num(TvContractCompat.WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS),
                 intentUri = c.str(TvContractCompat.PreviewProgramColumns.COLUMN_INTENT_URI)
@@ -453,13 +496,13 @@ object ContinueWatching {
             rows += RawRow(
                 id = c.num(BaseColumns._ID),
                 pkg = c.str(TvContractCompat.BaseTvColumns.COLUMN_PACKAGE_NAME).orEmpty(),
-                title = c.str(TvContractCompat.PreviewPrograms.COLUMN_TITLE).orEmpty(),
-                season = c.str(TvContractCompat.PreviewPrograms.COLUMN_SEASON_DISPLAY_NUMBER),
-                episode = c.str(TvContractCompat.PreviewPrograms.COLUMN_EPISODE_DISPLAY_NUMBER),
+                title = c.str(COL_TITLE).orEmpty(),
+                season = c.str(COL_SEASON_DISPLAY_NUMBER),
+                episode = c.str(COL_EPISODE_DISPLAY_NUMBER),
                 progress = progressOf(c),
-                posterUri = c.str(TvContractCompat.PreviewPrograms.COLUMN_POSTER_ART_URI)
+                posterUri = c.str(COL_POSTER_ART_URI)
                     ?.ifBlank { null }
-                    ?: c.str(TvContractCompat.PreviewPrograms.COLUMN_THUMBNAIL_URI)
+                    ?: c.str(COL_THUMBNAIL_URI)
                         ?.ifBlank { null },
                 // No engagement timestamp on this table — row order is the only hint.
                 stamp = 0L,

@@ -179,4 +179,26 @@
     <string name="cd_move_down">Aşağı taşı</string>
     <string name="cd_delete_section">Bölümü sil</string>
     <string name="about_source">Kaynak kodu</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">İzlemeye devam et</string>
+    <string name="item_continue_watching_sub">Uygulamalarınızın duraklattığı film ve bölümler için ek satır</string>
+    <string name="cw_row_label">İzlemeye devam et</string>
+    <string name="cw_show_row">İzlemeye devam et satırını göster</string>
+    <string name="cw_show_row_sub">Kartlar Watch Next verisi yayınlayan uygulamalardan gelir</string>
+    <string name="cw_cards">Satırdaki kartlar</string>
+    <string name="cw_card_size">Kart boyutu</string>
+    <string name="cw_card_size_sub">Uygulama simge boyutundan bağımsız</string>
+    <string name="cw_app_cards">Bu uygulamadan kartlar</string>
+    <string name="cw_all">Tümü</string>
+    <string name="cw_sources">Kaynaklar</string>
+    <string name="cw_source_sub">%1$d kart</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Şu anda hiçbir uygulama izlemeye devam et kartı yayınlamıyor. Liste uygulamalarınızı kullandıkça dolar — örneğin Netflix hiç yayınlamaz.</string>
+    <string name="cw_grant">TV listelerine erişim izni ver</string>
+    <string name="cw_grant_sub">Uygulamalarınızın hangi film ve bölümleri duraklattığını okumak için gerekli</string>
+    <string name="cw_grant_hint">İzin penceresi görünmezse bilgisayardan verin:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Afiş görselleri gerektiğinde yayınlayan uygulamaların sunucularından indirilir.</string>
+    <string name="cw_season_ep">S%1$s · B%2$s</string>
+    <string name="cw_episode_only">B%1$s</string>
 </resources>

@@ -89,6 +89,8 @@ data class LauncherConfig(
     val continueCardSize: Int = 2, // → 190dp
     /** source packages the user turned OFF (denylist; a package not listed here is enabled) */
     val continueSources: Set<String> = emptySet(),
+    /** per-app card cap: package -> max cards (absent = no per-app cap) */
+    val continueAppLimits: Map<String, Int> = emptyMap(),
     /** preview channels the user turned OFF, keyed "package|channelId" (denylist) */
     val continueChannels: Set<String> = emptySet(),
 )

@@ -179,4 +179,26 @@
     <string name="cd_move_down">Вниз</string>
     <string name="cd_delete_section">Удалить раздел</string>
     <string name="about_source">Исходный код</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Продолжить просмотр</string>
+    <string name="item_continue_watching_sub">Дополнительная строка с фильмами и сериями, приостановленными вашими приложениями</string>
+    <string name="cw_row_label">Продолжить просмотр</string>
+    <string name="cw_show_row">Показывать строку «Продолжить просмотр»</string>
+    <string name="cw_show_row_sub">Карточки берутся из приложений, публикующих данные Watch Next</string>
+    <string name="cw_cards">Карточек в строке</string>
+    <string name="cw_card_size">Размер карточек</string>
+    <string name="cw_card_size_sub">Не зависит от размера значков приложений</string>
+    <string name="cw_app_cards">Карточек от этого приложения</string>
+    <string name="cw_all">Все</string>
+    <string name="cw_sources">Источники</string>
+    <string name="cw_source_sub">%1$d карточек</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Сейчас ни одно приложение не публикует карточки продолжения просмотра. Список наполняется по мере использования приложений — например, Netflix не публикует их никогда.</string>
+    <string name="cw_grant">Разрешить доступ к телепрограмме</string>
+    <string name="cw_grant_sub">Нужно, чтобы читать, какие фильмы и серии приостановили ваши приложения</string>
+    <string name="cw_grant_hint">Если окно не появилось, выдать разрешение с компьютера:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Постеры скачиваются с серверов публикующих приложений при необходимости.</string>
+    <string name="cw_season_ep">С%1$s · Э%2$s</string>
+    <string name="cw_episode_only">Э%1$s</string>
 </resources>

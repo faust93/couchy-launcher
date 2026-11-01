@@ -179,4 +179,26 @@
     <string name="cd_move_down">Omlaag</string>
     <string name="cd_delete_section">Sectie verwijderen</string>
     <string name="about_source">Broncode</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Verder kijken</string>
+    <string name="item_continue_watching_sub">Extra rij met de films en afleveringen die je apps hebben gepauzeerd</string>
+    <string name="cw_row_label">Verder kijken</string>
+    <string name="cw_show_row">Rij Verder kijken tonen</string>
+    <string name="cw_show_row_sub">Kaarten komen van de apps die Watch Next-gegevens publiceren</string>
+    <string name="cw_cards">Kaarten in de rij</string>
+    <string name="cw_card_size">Kaartgrootte</string>
+    <string name="cw_card_size_sub">Onafhankelijk van de pictogramgrootte</string>
+    <string name="cw_app_cards">Kaarten van deze app</string>
+    <string name="cw_all">Alle</string>
+    <string name="cw_sources">Bronnen</string>
+    <string name="cw_source_sub">%1$d kaarten</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Geen enkele app publiceert nu Verder kijken-kaarten. De lijst vult zich terwijl je apps gebruikt — Netflix publiceert er bijvoorbeeld nooit een.</string>
+    <string name="cw_grant">Toegang tot TV-gids verlenen</string>
+    <string name="cw_grant_sub">Nodig om te lezen welke films en afleveringen je apps hebben gepauzeerd</string>
+    <string name="cw_grant_hint">Verschijnt er geen venster, verleen het dan vanaf een computer:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Posterafbeeldingen worden indien nodig gedownload van de servers van de publicerende apps.</string>
+    <string name="cw_season_ep">S%1$s · A%2$s</string>
+    <string name="cw_episode_only">A%1$s</string>
 </resources>

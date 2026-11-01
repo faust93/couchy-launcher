@@ -179,4 +179,26 @@
     <string name="cd_move_down">W dół</string>
     <string name="cd_delete_section">Usuń sekcję</string>
     <string name="about_source">Kod źródłowy</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Kontynuuj oglądanie</string>
+    <string name="item_continue_watching_sub">Dodatkowy wiersz z filmami i odcinkami wstrzymanymi w aplikacjach</string>
+    <string name="cw_row_label">Kontynuuj oglądanie</string>
+    <string name="cw_show_row">Pokazuj wiersz Kontynuuj oglądanie</string>
+    <string name="cw_show_row_sub">Karty pochodzą z aplikacji publikujących dane Watch Next</string>
+    <string name="cw_cards">Kart w wierszu</string>
+    <string name="cw_card_size">Rozmiar kart</string>
+    <string name="cw_card_size_sub">Niezależny od rozmiaru ikon aplikacji</string>
+    <string name="cw_app_cards">Karty z tej aplikacji</string>
+    <string name="cw_all">Wszystkie</string>
+    <string name="cw_sources">Źródła</string>
+    <string name="cw_source_sub">%1$d kart</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Żadna aplikacja nie publikuje teraz kart Kontynuuj oglądanie. Lista zapełnia się w miarę korzystania z aplikacji — na przykład Netflix nie publikuje ich nigdy.</string>
+    <string name="cw_grant">Zezwól na dostęp do programu TV</string>
+    <string name="cw_grant_sub">Wymagane, aby odczytać, które filmy i odcinki wstrzymały aplikacje</string>
+    <string name="cw_grant_hint">Jeśli okno się nie pojawi, przyznaj uprawnienie z komputera:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Plakaty są pobierane z serwerów publikujących aplikacji, gdy są potrzebne.</string>
+    <string name="cw_season_ep">S%1$s · O%2$s</string>
+    <string name="cw_episode_only">O%1$s</string>
 </resources>

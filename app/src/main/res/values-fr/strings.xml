@@ -193,4 +193,26 @@
     <string name="cd_move_down">Descendre</string>
     <string name="cd_delete_section">Supprimer la section</string>
     <string name="about_source">Code source</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Reprendre</string>
+    <string name="item_continue_watching_sub">Ligne supplémentaire avec les films et épisodes mis en pause par vos applis</string>
+    <string name="cw_row_label">Reprendre</string>
+    <string name="cw_show_row">Afficher la ligne « Reprendre »</string>
+    <string name="cw_show_row_sub">Les cartes proviennent des applis qui publient les données Watch Next</string>
+    <string name="cw_cards">Cartes dans la ligne</string>
+    <string name="cw_card_size">Taille des cartes</string>
+    <string name="cw_card_size_sub">Indépendante de la taille des icônes</string>
+    <string name="cw_app_cards">Cartes de cette appli</string>
+    <string name="cw_all">Toutes</string>
+    <string name="cw_sources">Sources</string>
+    <string name="cw_source_sub">%1$d cartes</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Aucune appli ne publie de cartes « Reprendre » pour le moment. La liste se remplit au fil de votre utilisation — Netflix, par exemple, n’en publie jamais.</string>
+    <string name="cw_grant">Autoriser l’accès aux programmes TV</string>
+    <string name="cw_grant_sub">Nécessaire pour lire les films et épisodes mis en pause par vos applis</string>
+    <string name="cw_grant_hint">Si aucune fenêtre n’apparaît, accordez l’autorisation depuis un ordinateur :\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Les affiches sont téléchargées depuis les serveurs des applis émettrices si nécessaire.</string>
+    <string name="cw_season_ep">S%1$s · É%2$s</string>
+    <string name="cw_episode_only">É%1$s</string>
 </resources>

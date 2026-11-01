@@ -179,4 +179,26 @@
     <string name="cd_move_down">تحريك لأسفل</string>
     <string name="cd_delete_section">حذف القسم</string>
     <string name="about_source">الكود المصدري</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">متابعة المشاهدة</string>
+    <string name="item_continue_watching_sub">صف إضافي للأفلام والحلقات التي أوقفتها تطبيقاتك</string>
+    <string name="cw_row_label">متابعة المشاهدة</string>
+    <string name="cw_show_row">إظهار صف متابعة المشاهدة</string>
+    <string name="cw_show_row_sub">تأتي البطاقات من التطبيقات التي تنشر بيانات Watch Next</string>
+    <string name="cw_cards">البطاقات في الصف</string>
+    <string name="cw_card_size">حجم البطاقة</string>
+    <string name="cw_card_size_sub">مستقل عن حجم أيقونات التطبيقات</string>
+    <string name="cw_app_cards">بطاقات من هذا التطبيق</string>
+    <string name="cw_all">الكل</string>
+    <string name="cw_sources">المصادر</string>
+    <string name="cw_source_sub">%1$d بطاقات</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">لا يوجد تطبيق ينشر بطاقات متابعة المشاهدة الآن. تمتلئ القائمة أثناء استخدامك للتطبيقات — فمثلًا Netflix لا ينشر أي بطاقة.</string>
+    <string name="cw_grant">منح الوصول إلى قوائم التلفزيون</string>
+    <string name="cw_grant_sub">مطلوب لقراءة الأفلام والحلقات التي أوقفتها تطبيقاتك</string>
+    <string name="cw_grant_hint">إذا لم تظهر نافذة، امنح الإذن من حاسوب:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">يتم تنزيل صور الملصقات من خوادم التطبيقات الناشرة عند الحاجة.</string>
+    <string name="cw_season_ep">S%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
 </resources>

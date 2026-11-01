@@ -179,4 +179,26 @@
     <string name="cd_move_down">Nach unten</string>
     <string name="cd_delete_section">Sektion löschen</string>
     <string name="about_source">Quellcode</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Weiter ansehen</string>
+    <string name="item_continue_watching_sub">Zusätzliche Zeile mit den Filmen und Serien, die deine Apps pausiert haben</string>
+    <string name="cw_row_label">Weiter ansehen</string>
+    <string name="cw_show_row">Zeile „Weiter ansehen“ anzeigen</string>
+    <string name="cw_show_row_sub">Karten stammen von Apps, die Watch-Next-Daten veröffentlichen</string>
+    <string name="cw_cards">Karten in der Zeile</string>
+    <string name="cw_card_size">Kartengröße</string>
+    <string name="cw_card_size_sub">Unabhängig von der App-Symbolgröße</string>
+    <string name="cw_app_cards">Karten aus dieser App</string>
+    <string name="cw_all">Alle</string>
+    <string name="cw_sources">Quellen</string>
+    <string name="cw_source_sub">%1$d Karten</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Keine App veröffentlicht derzeit Karten für „Weiter ansehen“. Die Liste füllt sich, während du deine Apps nutzt — Netflix zum Beispiel veröffentlicht nie welche.</string>
+    <string name="cw_grant">Zugriff auf TV-Programmdaten erlauben</string>
+    <string name="cw_grant_sub">Erforderlich, um zu lesen, welche Filme und Serien deine Apps pausiert haben</string>
+    <string name="cw_grant_hint">Falls kein Dialog erscheint, erteile die Berechtigung an einem Computer:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Posterbilder werden bei Bedarf von den Servern der veröffentlichenden Apps heruntergeladen.</string>
+    <string name="cw_season_ep">S%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
 </resources>

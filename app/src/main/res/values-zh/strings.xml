@@ -193,4 +193,26 @@
     <string name="cd_move_down">下移</string>
     <string name="cd_delete_section">删除分区</string>
     <string name="about_source">源代码</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">继续观看</string>
+    <string name="item_continue_watching_sub">显示应用暂停的电影和剧集的额外一行</string>
+    <string name="cw_row_label">继续观看</string>
+    <string name="cw_show_row">显示“继续观看”行</string>
+    <string name="cw_show_row_sub">卡片来自发布 Watch Next 数据的应用</string>
+    <string name="cw_cards">行内卡片数</string>
+    <string name="cw_card_size">卡片大小</string>
+    <string name="cw_card_size_sub">与应用图标大小无关</string>
+    <string name="cw_app_cards">此应用的卡片</string>
+    <string name="cw_all">全部</string>
+    <string name="cw_sources">来源</string>
+    <string name="cw_source_sub">%1$d 张卡片</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">目前没有应用发布继续观看卡片。列表会随着你使用应用而填充——例如 Netflix 从不发布。</string>
+    <string name="cw_grant">授予电视节目单访问权限</string>
+    <string name="cw_grant_sub">用于读取应用暂停的电影和剧集</string>
+    <string name="cw_grant_hint">如果没有出现对话框，请从电脑授权：\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">海报图片会在需要时从发布应用的服务器下载。</string>
+    <string name="cw_season_ep">第%1$s季 · 第%2$s集</string>
+    <string name="cw_episode_only">第%1$s集</string>
 </resources>

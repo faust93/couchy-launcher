@@ -179,4 +179,26 @@
     <string name="cd_move_down">Sposta giù</string>
     <string name="cd_delete_section">Elimina sezione</string>
     <string name="about_source">Codice sorgente</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">Continua a guardare</string>
+    <string name="item_continue_watching_sub">Riga extra con i film e gli episodi che le tue app hanno messo in pausa</string>
+    <string name="cw_row_label">Continua a guardare</string>
+    <string name="cw_show_row">Mostra la riga Continua a guardare</string>
+    <string name="cw_show_row_sub">Le schede provengono dalle app che pubblicano dati Watch Next</string>
+    <string name="cw_cards">Schede nella riga</string>
+    <string name="cw_card_size">Dimensione schede</string>
+    <string name="cw_card_size_sub">Indipendente dalla dimensione delle icone</string>
+    <string name="cw_app_cards">Schede da questa app</string>
+    <string name="cw_all">Tutte</string>
+    <string name="cw_sources">Origini</string>
+    <string name="cw_source_sub">%1$d schede</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">Nessuna app sta pubblicando schede Continua a guardare. L’elenco si riempie mentre usi le app — Netflix, per esempio, non ne pubblica mai.</string>
+    <string name="cw_grant">Consenti accesso ai programmi TV</string>
+    <string name="cw_grant_sub">Necessario per leggere quali film ed episodi hanno messo in pausa le tue app</string>
+    <string name="cw_grant_hint">Se non appare alcuna finestra, concedilo da un computer:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">Le immagini delle locandine vengono scaricate dai server delle app che le pubblicano quando necessario.</string>
+    <string name="cw_season_ep">S%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
 </resources>

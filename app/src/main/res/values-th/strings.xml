@@ -179,4 +179,26 @@
     <string name="cd_move_down">เลื่อนลง</string>
     <string name="cd_delete_section">ลบส่วน</string>
     <string name="about_source">ซอร์สโค้ด</string>
+
+    <!-- Continue watching -->
+    <string name="item_continue_watching">ดูต่อ</string>
+    <string name="item_continue_watching_sub">แถวเพิ่มเติมสำหรับภาพยนตร์และตอนที่แอปของคุณหยุดไว้</string>
+    <string name="cw_row_label">ดูต่อ</string>
+    <string name="cw_show_row">แสดงแถวดูต่อ</string>
+    <string name="cw_show_row_sub">การ์ดมาจากแอปที่เผยแพร่ข้อมูล Watch Next</string>
+    <string name="cw_cards">การ์ดในแถว</string>
+    <string name="cw_card_size">ขนาดการ์ด</string>
+    <string name="cw_card_size_sub">ไม่ขึ้นกับขนาดไอคอนแอป</string>
+    <string name="cw_app_cards">การ์ดจากแอปนี้</string>
+    <string name="cw_all">ทั้งหมด</string>
+    <string name="cw_sources">แหล่งที่มา</string>
+    <string name="cw_source_sub">%1$d การ์ด</string>
+    <string name="cw_watch_next">Watch Next</string>
+    <string name="cw_sources_none">ขณะนี้ไม่มีแอปใดเผยแพร่การ์ดดูต่อ รายการจะเต็มขึ้นเมื่อคุณใช้งานแอป — ตัวอย่างเช่น Netflix ไม่เคยเผยแพร่</string>
+    <string name="cw_grant">ให้สิทธิ์เข้าถึงผังรายการทีวี</string>
+    <string name="cw_grant_sub">จำเป็นเพื่ออ่านว่าภาพยนตร์และตอนใดที่แอปของคุณหยุดไว้</string>
+    <string name="cw_grant_hint">หากไม่มีกล่องโต้ตอบ ให้ให้สิทธิ์จากคอมพิวเตอร์:\nadb shell pm grant com.conreo.couchytv android.permission.READ_TV_LISTINGS</string>
+    <string name="cw_network_note">ภาพโปสเตอร์จะถูกดาวน์โหลดจากเซิร์ฟเวอร์ของแอปที่เผยแพร่เมื่อจำเป็น</string>
+    <string name="cw_season_ep">S%1$s · E%2$s</string>
+    <string name="cw_episode_only">E%1$s</string>
 </resources>
