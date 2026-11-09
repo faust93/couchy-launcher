@@ -536,6 +536,15 @@ private fun DisplayScreen(
                 headlineContent = { Text(stringResource(R.string.section_names_label)) },
                 trailingContent = { CheckMark(checked = config.showCategoryNames) },
             )
+            // Kept in the launcher's own list layouts: the dock draws its own
+            // grid, so the fade has no meaning there.
+            SettingsItem(
+                selected = false,
+                onClick = { update { it.copy(edgeFade = !it.edgeFade) } },
+                headlineContent = { Text(stringResource(R.string.edge_fade)) },
+                supportingContent = { Text(stringResource(R.string.edge_fade_sub)) },
+                trailingContent = { CheckMark(checked = config.edgeFade) },
+            )
         }
         SectionLabel(stringResource(R.string.section_size))
         run {

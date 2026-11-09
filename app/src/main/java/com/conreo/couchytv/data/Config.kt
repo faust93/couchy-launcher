@@ -66,6 +66,8 @@ data class LauncherConfig(
     // ----- display options -----
     /** wallpaper dimming: 0 = top & bottom, 1 = top, 2 = bottom, 3 = full, 4 = off */
     val scrimMode: Int = 1, // Top
+    /** fade rows at the top edge (costs a full-screen offscreen pass; off = faster) */
+    val edgeFade: Boolean = false,
     val showCategoryNames: Boolean = true,
     val showAppLabels: Boolean = true,
     /** spacing step 0..4 (see GAP_SIZES) */

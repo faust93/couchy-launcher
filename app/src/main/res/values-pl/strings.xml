@@ -201,4 +201,8 @@
     <string name="cw_network_note">Plakaty są pobierane z serwerów publikujących aplikacji, gdy są potrzebne.</string>
     <string name="cw_season_ep">S%1$s · O%2$s</string>
     <string name="cw_episode_only">O%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Zanikanie wierszy u góry</string>
+    <string name="edge_fade_sub">Wiersze znikają łagodnie pod górną krawędzią — wyłączone jest szybsze</string>
 </resources>

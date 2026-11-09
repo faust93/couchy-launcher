@@ -215,4 +215,8 @@
     <string name="cw_network_note">海报图片会在需要时从发布应用的服务器下载。</string>
     <string name="cw_season_ep">第%1$s季 · 第%2$s集</string>
     <string name="cw_episode_only">第%1$s集</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">顶部边缘渐隐</string>
+    <string name="edge_fade_sub">行滚动到顶部边缘下方时渐隐——关闭可提升流畅度</string>
 </resources>

@@ -10,7 +10,11 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.provider.BaseColumns
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -19,10 +23,6 @@ import com.conreo.couchytv.ui.tileColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.InputStream
@@ -120,9 +120,21 @@ const val CW_APP_LIMIT_MAX = 50
  */
 object ContinueWatching {
 
-    /** key (poster URI) -> decoded, ready-to-draw artwork */
-    private val posterCache = MutableStateFlow<Map<String, ImageBitmap>>(emptyMap())
-    val posters: StateFlow<Map<String, ImageBitmap>> = posterCache.asStateFlow()
+    /**
+     * URI -> its own Compose state. A decoded poster updates exactly one of
+     * these, so only the card showing that URI recomposes. The previous
+     * screen-wide `StateFlow<Map>` made *every* finished download recompose the
+     * whole launcher — measured as ~48% janky frames while scrolling.
+     *
+     * Access-ordered LRU: the map is capped, and evicting an entry only drops
+     * the reference; a card currently composed keeps its State (and bitmap)
+     * until it leaves the screen, then the GC can reclaim it.
+     */
+    private val posterStates =
+        object : LinkedHashMap<String, MutableState<ImageBitmap?>>(64, 0.75f, true) {}
+    /** Guards the access-ordered map (main thread composes, IO thread decodes). */
+    private val posterLock = Any()
+    private const val MAX_CACHED_POSTERS = 80
 
     /** Posters fetched on a small background pool — never the main thread. */
     private val posterScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(2))
@@ -383,18 +395,60 @@ object ContinueWatching {
             .sortedWith(compareByDescending<CwSource> { it.watchNext }.thenBy { it.pkg })
     }
 
-    /** Queue poster downloads for [entries]; already-cached and backing-off URIs are skipped. */
-    fun requestPosters(context: Context, entries: List<ContinueEntry>) {
-        val app = context.applicationContext
-        val now = System.currentTimeMillis()
-        entries.mapNotNull { it.posterUri }
-            .distinct()
-            .filter { uri ->
-                uri !in posterCache.value &&
-                    uri !in inFlight &&
-                    (failedAt[uri] ?: 0L).let { now - it >= RETRY_BACKOFF_MS }
+    // ---------------------------------------------------------------- posters
+
+    /**
+     * The state a composed card observes. Touching the LRU keeps freshly shown
+     * artwork cached; the cap bounds memory (previously it grew forever).
+     */
+    private fun posterState(uri: String): MutableState<ImageBitmap?> =
+        synchronized(posterLock) {
+            posterStates[uri]?.let { return it }
+            val state = mutableStateOf<ImageBitmap?>(null)
+            posterStates[uri] = state
+            if (posterStates.size > MAX_CACHED_POSTERS) {
+                val eldest = posterStates.entries.iterator()
+                if (eldest.hasNext()) {
+                    eldest.next()
+                    eldest.remove() // live compositions keep their own reference
+                }
             }
-            .forEach { uri -> posterScope.launch { fetchPoster(app, uri) } }
+            state
+        }
+
+    /** Already-decoded artwork for [uri], if any (LRU-touched). */
+    private fun cachedPoster(uri: String): ImageBitmap? =
+        synchronized(posterLock) { posterStates[uri]?.value }
+
+    /**
+     * Compose helper: artwork for [uri], or null while it is still loading.
+     * Reading this inside [ContinueCard] scopes invalidation to that one card.
+     */
+    @Composable
+    fun rememberPoster(uri: String?): ImageBitmap? {
+        if (uri == null) return null
+        return remember(uri) { posterState(uri) }.value
+    }
+
+    /**
+     * Queue one poster fetch. Called by a card as it enters composition, so
+     * only visible artwork is downloaded — no 50-image burst on resume.
+     * [widthPx] is the card's actual pixel width, so we decode no more pixels
+     * than get painted.
+     */
+    fun requestPoster(context: Context, uri: String, widthPx: Int) {
+        if (cachedPoster(uri) != null) return
+        val now = System.currentTimeMillis()
+        if (now - (failedAt[uri] ?: 0L) < RETRY_BACKOFF_MS) return
+        if (!inFlight.add(uri)) return
+        val app = context.applicationContext
+        posterScope.launch {
+            try {
+                fetchPoster(app, uri, widthPx)
+            } finally {
+                inFlight.remove(uri)
+            }
+        }
     }
 
     // ------------------------------------------------------------------ query
@@ -567,27 +621,19 @@ object ContinueWatching {
 
     // ---------------------------------------------------------------- posters
 
-    /** Same paint budget as banners: 270dp at device density, clamped for RAM. */
-    private fun posterTarget(context: Context): Pair<Int, Int> {
-        val w = (270 * context.resources.displayMetrics.density).toInt().coerceIn(320, 720)
-        return w to w * 9 / 16
-    }
-
-    private fun fetchPoster(context: Context, uri: String) {
-        if (!inFlight.add(uri)) return
-        try {
-            val (w, h) = posterTarget(context)
-            val bmp = loadPoster(context, uri, w, h)
-            if (bmp == null) {
-                failedAt[uri] = System.currentTimeMillis()
-                return
-            }
-            bmp.prepareToDraw()
-            failedAt.remove(uri)
-            posterCache.update { it + (uri to bmp.asImageBitmap()) }
-        } finally {
-            inFlight.remove(uri)
+    private fun fetchPoster(context: Context, uri: String, widthPx: Int) {
+        // Decode at the card's real pixel width: no more pixels than get
+        // painted (the old fixed 270dp target over-decoded small cards).
+        val w = widthPx.coerceIn(240, 720)
+        val h = w * 9 / 16
+        val bmp = loadPoster(context, uri, w, h)
+        if (bmp == null) {
+            failedAt[uri] = System.currentTimeMillis()
+            return
         }
+        bmp.prepareToDraw()
+        failedAt.remove(uri)
+        posterState(uri).value = bmp.asImageBitmap()
     }
 
     /**

@@ -201,4 +201,8 @@
     <string name="cw_network_note">Le immagini delle locandine vengono scaricate dai server delle app che le pubblicano quando necessario.</string>
     <string name="cw_season_ep">S%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Sfuma le righe in alto</string>
+    <string name="edge_fade_sub">Le righe svaniscono scorrendo sotto il bordo superiore — disattivato è più veloce</string>
 </resources>

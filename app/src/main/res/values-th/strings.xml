@@ -201,4 +201,8 @@
     <string name="cw_network_note">ภาพโปสเตอร์จะถูกดาวน์โหลดจากเซิร์ฟเวอร์ของแอปที่เผยแพร่เมื่อจำเป็น</string>
     <string name="cw_season_ep">S%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">จางแถวที่ขอบด้านบน</string>
+    <string name="edge_fade_sub">แถวจะจางลงเมื่อเลื่อนใต้ขอบด้านบน — ปิดจะเร็วขึ้น</string>
 </resources>

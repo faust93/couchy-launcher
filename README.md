@@ -138,6 +138,7 @@ No ads, analytics, accounts or background services. The only network use is opti
 
 **v1.1.0**
 - Optional "Continue watching" row: resume cards from Watch Next **and** the preview channels apps publish (opt-in, per-app and per-channel toggles, adjustable total card count and card size, per-app card limits)
+- Display: optional top-edge fade (off by default — it costs a full-screen compositing pass)
 
 **v1.0.6**
 - Smoother cold start (limitedParallelism scan, 2-frame boot fade)

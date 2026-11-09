@@ -38,7 +38,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -389,10 +388,12 @@ fun LauncherApp(rescanTick: Int) {
             val installed = apps.mapTo(HashSet()) { it.pkg }
             withContext(Dispatchers.IO) {
                 ContinueWatching.load(context.applicationContext, config, installed, continueCount)
-            }.also { ContinueWatching.requestPosters(context.applicationContext, it) }
+            }
         }
     }
-    val continuePosters by ContinueWatching.posters.collectAsState()
+    // Labels resolved once; poster artwork is observed per card (ContinueCard),
+    // so a finished download never recomposes the launcher.
+    val appLabels = remember(apps) { apps.associate { it.pkg to it.label } }
     val sectionListState = rememberLazyListState()
     val accent = ACCENTS[config.accent.coerceIn(0, ACCENTS.size - 1)]
 
@@ -774,7 +775,7 @@ fun LauncherApp(rescanTick: Int) {
                         intro = introShown,
                         expanded = dockExpanded,
                         continueEntries = continueEntries,
-                        continuePosters = continuePosters,
+                        continueLabels = appLabels,
                         continueCardWidth = cwCardWidth,
                         onExpandChange = { dockExpanded = it },
                         onLaunch = { app -> if (movePkg == null) Actions.launchApp(context, app.pkg) },
@@ -807,13 +808,14 @@ fun LauncherApp(rescanTick: Int) {
                                 ): Float = offset - pivotPx
                             }
                         }
-                        // Rows crossing the top edge fade out (and back in on the way
-                        // down) instead of being hard-clipped by an invisible wall.
-                        // Kept to the peek sliver so the focused section's label,
-                        // which sits just below it, stays fully readable.
+                        // Rows crossing the top edge are covered by a cheap
+                        // gradient overlay instead of an alpha mask: a DstIn
+                        // mask needs the whole list rendered Offscreen every
+                        // frame, which measured ~8ms/frame on this GPU.
+                        // Optional top-edge fade: rows soften as they pass under
+                        // the top edge. The DstIn mask needs a full-screen
+                        // offscreen pass (~8ms/frame here), so it is opt-in.
                         val fadePx = peekPx
-                        // Hoisted out of drawWithContent: rebuilt inside the draw
-                        // lambda it re-allocated a Brush (+ shader) every frame.
                         val fadeBrush = remember(fadePx) {
                             Brush.verticalGradient(
                                 colors = listOf(Color.Transparent, Color.Black),
@@ -832,11 +834,17 @@ fun LauncherApp(rescanTick: Int) {
                                     // Restore the last-focused card when focus returns
                                     // (e.g. coming back down from the status bar).
                                     .focusRestorer()
-                                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                                    .drawWithContent {
-                                        drawContent()
-                                        drawRect(brush = fadeBrush, blendMode = BlendMode.DstIn)
-                                    },
+                                    .then(
+                                        if (config.edgeFade) Modifier
+                                            .graphicsLayer {
+                                                compositingStrategy = CompositingStrategy.Offscreen
+                                            }
+                                            .drawWithContent {
+                                                drawContent()
+                                                drawRect(brush = fadeBrush, blendMode = BlendMode.DstIn)
+                                            }
+                                        else Modifier
+                                    ),
                                 contentPadding = PaddingValues(
                                     top = with(density) { pivotPx.toDp() },
                                     bottom = with(density) { peekPx.toDp() } + 16.dp,
@@ -849,14 +857,11 @@ fun LauncherApp(rescanTick: Int) {
                                 // it slides in with the rest instead of popping after.
                                 ContinueRow(
                                     entries = continueEntries,
-                                    posters = continuePosters,
+                                    labels = appLabels,
                                     accent = accent,
                                     cardWidth = cwCardWidth,
                                     gap = gap,
                                     intro = introShown,
-                                    sourceLabel = { pkg ->
-                                        apps.firstOrNull { it.pkg == pkg }?.label ?: pkg
-                                    },
                                     onLaunch = { entry ->
                                         Actions.launchProgram(context, entry.pkg, entry.intentUri)
                                     },
@@ -921,7 +926,7 @@ fun LauncherApp(rescanTick: Int) {
                                 }
                             }
                         }
-                            }
+                        }
                         }
                     }
                 }
@@ -1072,12 +1077,11 @@ private fun CarouselSection(
 @Composable
 private fun ContinueRow(
     entries: List<ContinueEntry>,
-    posters: Map<String, ImageBitmap>,
+    labels: Map<String, String>,
     accent: Color,
     cardWidth: Dp,
     gap: Dp,
     intro: Boolean,
-    sourceLabel: (String) -> String,
     onLaunch: (ContinueEntry) -> Unit,
     onMenu: (ContinueEntry) -> Unit,
 ) {
@@ -1091,10 +1095,12 @@ private fun ContinueRow(
         animationSpec = tween(280, delayMillis = 320),
         label = "cwLabel",
     )
-    Column(Modifier.graphicsLayer {
-        translationX = (1f - rowEnter) * size.width
-        alpha = rowEnter
-    }) {
+    Column(
+        if (rowEnter < 1f) Modifier.graphicsLayer {
+            translationX = (1f - rowEnter) * size.width
+            alpha = rowEnter
+        } else Modifier
+    ) {
         if (intro) {
             Text(
                 text = stringResource(R.string.cw_row_label).uppercase(),
@@ -1137,8 +1143,7 @@ private fun ContinueRow(
                     val entry = entries[i]
                     ContinueCard(
                         entry = entry,
-                        poster = entry.posterUri?.let { posters[it] },
-                        sourceLabel = sourceLabel(entry.pkg),
+                        sourceLabel = labels[entry.pkg] ?: entry.pkg,
                         accent = accent,
                         cardWidth = cardWidth,
                         onLaunch = { onLaunch(entry) },
@@ -1242,7 +1247,7 @@ private fun DockArea(
     intro: Boolean,
     expanded: Boolean,
     continueEntries: List<ContinueEntry>,
-    continuePosters: Map<String, ImageBitmap>,
+    continueLabels: Map<String, String>,
     continueCardWidth: Dp,
     onExpandChange: (Boolean) -> Unit,
     onLaunch: (AppEntry) -> Unit,
@@ -1377,13 +1382,12 @@ private fun DockArea(
                     item(key = "cw") {
                         ContinueRow(
                             entries = continueEntries,
-                            posters = continuePosters,
+                            labels = continueLabels,
                             accent = accent,
                             cardWidth = continueCardWidth,
                             gap = gap,
                             // Already intro'd; slide only on expand like the grid.
                             intro = true,
-                            sourceLabel = { pkg -> apps.firstOrNull { it.pkg == pkg }?.label ?: pkg },
                             onLaunch = onLaunchContinue,
                             onMenu = onMenuContinue,
                         )

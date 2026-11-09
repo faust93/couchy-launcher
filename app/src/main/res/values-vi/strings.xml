@@ -201,4 +201,8 @@
     <string name="cw_network_note">Hình ảnh áp phích được tải từ máy chủ của ứng dụng công bố khi cần.</string>
     <string name="cw_season_ep">S%1$s · T%2$s</string>
     <string name="cw_episode_only">T%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Mờ dần hàng ở cạnh trên</string>
+    <string name="edge_fade_sub">Các hàng mờ dần khi cuộn dưới cạnh trên — tắt sẽ nhanh hơn</string>
 </resources>

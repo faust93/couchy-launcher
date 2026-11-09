@@ -201,4 +201,8 @@
     <string name="cw_network_note">Постеры скачиваются с серверов публикующих приложений при необходимости.</string>
     <string name="cw_season_ep">С%1$s · Э%2$s</string>
     <string name="cw_episode_only">Э%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Затухание строк у верхнего края</string>
+    <string name="edge_fade_sub">Строки плавно исчезают при прокрутке под верхним краем; выключено — быстрее</string>
 </resources>

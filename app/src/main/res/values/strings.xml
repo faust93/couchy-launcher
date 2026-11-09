@@ -87,6 +87,8 @@
     <string name="mode_dock_desc">Floating dock at the bottom — Down expands over a blurred wallpaper</string>
     <string name="section_elements">Elements</string>
     <string name="section_names_label">Section names</string>
+    <string name="edge_fade">Fade rows at the top edge</string>
+    <string name="edge_fade_sub">Rows soften as they scroll under the top edge — off is faster</string>
     <string name="section_size">Size — rows fit as many icons as size + spacing allow</string>
     <string name="ui_scale">Interface scale</string>
     <string name="scale_auto">Auto</string>

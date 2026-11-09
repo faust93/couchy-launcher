@@ -201,4 +201,8 @@
     <string name="cw_network_note">Posterbilder werden bei Bedarf von den Servern der veröffentlichenden Apps heruntergeladen.</string>
     <string name="cw_season_ep">S%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Zeilen am oberen Rand ausblenden</string>
+    <string name="edge_fade_sub">Zeilen blenden beim Scrollen unter den oberen Rand sanft aus – aus ist schneller</string>
 </resources>

@@ -11,13 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -26,6 +28,21 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.conreo.couchytv.R
 import com.conreo.couchytv.data.ContinueEntry
+import com.conreo.couchytv.data.ContinueWatching
+
+/** Sheen tile for cards whose artwork hasn't arrived yet. */
+private val PlaceholderSheen = Brush.verticalGradient(
+    listOf(
+        Color.White.copy(alpha = 0.10f),
+        Color.Transparent,
+        Color.Black.copy(alpha = 0.14f),
+    )
+)
+
+/** Readability scrim behind the title once a poster is shown. */
+private val TitleScrim = Brush.verticalGradient(
+    listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
+)
 
 /**
  * A continue-watching card: 16:9 like every other home-screen card (the
@@ -39,7 +56,6 @@ import com.conreo.couchytv.data.ContinueEntry
 @Composable
 fun ContinueCard(
     entry: ContinueEntry,
-    poster: ImageBitmap?,
     sourceLabel: String,
     accent: Color,
     cardWidth: Dp = 190.dp,
@@ -48,6 +64,21 @@ fun ContinueCard(
     onLaunch: () -> Unit,
     onLongPress: () -> Unit,
 ) {
+    // Poster state is observed here, per card: a finished download recomposes
+    // only this card, never the whole launcher. Fetching starts when the card
+    // first composes, so only visible artwork is downloaded.
+    val poster = ContinueWatching.rememberPoster(entry.posterUri)
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    LaunchedEffect(entry.posterUri) {
+        val uri = entry.posterUri ?: return@LaunchedEffect
+        ContinueWatching.requestPoster(
+            context.applicationContext,
+            uri,
+            with(density) { cardWidth.roundToPx() },
+        )
+    }
+
     val season = entry.season
     val episode = entry.episode
     val episodeText = when {
@@ -82,9 +113,7 @@ fun ContinueCard(
                     bitmap = poster,
                     contentDescription = entry.title,
                     contentScale = ContentScale.Crop,
-                    // Own render layer: the focus scale animation transforms the
-                    // cached layer instead of re-sampling the bitmap.
-                    modifier = Modifier.fillMaxSize().graphicsLayer { },
+                    modifier = Modifier.fillMaxSize(),
                 )
             } else {
                 // No artwork (yet): the same sheen tile as banner-less app cards,
@@ -92,15 +121,7 @@ fun ContinueCard(
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    Color.White.copy(alpha = 0.10f),
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.14f),
-                                )
-                            )
-                        )
+                        .background(PlaceholderSheen)
                 )
                 if (showLabel) {
                     Column(
@@ -133,11 +154,7 @@ fun ContinueCard(
                     Modifier
                         .align(Alignment.BottomStart)
                         .fillMaxWidth()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
-                            )
-                        )
+                        .background(TitleScrim)
                         .padding(horizontal = 8.dp, vertical = 6.dp),
                 ) {
                     Text(

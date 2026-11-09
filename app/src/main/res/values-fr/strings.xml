@@ -215,4 +215,8 @@
     <string name="cw_network_note">Les affiches sont téléchargées depuis les serveurs des applis émettrices si nécessaire.</string>
     <string name="cw_season_ep">S%1$s · É%2$s</string>
     <string name="cw_episode_only">É%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Fondu des lignes en haut</string>
+    <string name="edge_fade_sub">Les lignes s’estompent en défilant sous le bord supérieur — désactivé est plus rapide</string>
 </resources>

@@ -201,4 +201,8 @@
     <string name="cw_network_note">يتم تنزيل صور الملصقات من خوادم التطبيقات الناشرة عند الحاجة.</string>
     <string name="cw_season_ep">S%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">تلاشي الصفوف عند الحافة العلوية</string>
+    <string name="edge_fade_sub">تتلاشى الصفوف عند التمرير أسفل الحافة العلوية — الإيقاف أسرع</string>
 </resources>

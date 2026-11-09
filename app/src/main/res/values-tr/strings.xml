@@ -201,4 +201,8 @@
     <string name="cw_network_note">Afiş görselleri gerektiğinde yayınlayan uygulamaların sunucularından indirilir.</string>
     <string name="cw_season_ep">S%1$s · B%2$s</string>
     <string name="cw_episode_only">B%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Üst kenarda satırları soluklaştır</string>
+    <string name="edge_fade_sub">Satırlar üst kenarın altında kayarken solar — kapalı daha hızlıdır</string>
 </resources>

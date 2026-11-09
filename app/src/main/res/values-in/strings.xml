@@ -201,4 +201,8 @@
     <string name="cw_network_note">Gambar poster diunduh dari server aplikasi penerbit saat diperlukan.</string>
     <string name="cw_season_ep">S%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Pudarkan baris di tepi atas</string>
+    <string name="edge_fade_sub">Baris memudar saat digulir di bawah tepi atas — nonaktif lebih cepat</string>
 </resources>

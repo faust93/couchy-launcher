@@ -215,4 +215,8 @@
     <string name="cw_network_note">Las imágenes de las carátulas se descargan de los servidores de las apps editoras cuando es necesario.</string>
     <string name="cw_season_ep">T%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Desvanecer filas en el borde superior</string>
+    <string name="edge_fade_sub">Las filas se difuminan al desplazarse bajo el borde superior; desactivado es más rápido</string>
 </resources>

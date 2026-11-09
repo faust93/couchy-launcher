@@ -201,4 +201,8 @@
     <string name="cw_network_note">As imagens das capas são transferidas dos servidores das apps editoras quando necessário.</string>
     <string name="cw_season_ep">T%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Esbater linhas no topo</string>
+    <string name="edge_fade_sub">As linhas desvanecem ao passar sob a borda superior — desativado é mais rápido</string>
 </resources>

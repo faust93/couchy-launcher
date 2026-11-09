@@ -201,4 +201,8 @@
     <string name="cw_network_note">포스터 이미지는 필요할 때 게시 앱의 서버에서 다운로드됩니다.</string>
     <string name="cw_season_ep">S%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">위쪽 가장자리에서 행 페이드</string>
+    <string name="edge_fade_sub">행이 위쪽 가장자리 아래로 스크롤될 때 흐려집니다 — 끄면 더 빠릅니다</string>
 </resources>

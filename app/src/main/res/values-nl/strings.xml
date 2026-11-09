@@ -201,4 +201,8 @@
     <string name="cw_network_note">Posterafbeeldingen worden indien nodig gedownload van de servers van de publicerende apps.</string>
     <string name="cw_season_ep">S%1$s · A%2$s</string>
     <string name="cw_episode_only">A%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">Rijen vervagen bovenaan</string>
+    <string name="edge_fade_sub">Rijen vervagen onder de bovenrand — uit is sneller</string>
 </resources>

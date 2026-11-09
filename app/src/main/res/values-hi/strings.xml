@@ -201,4 +201,8 @@
     <string name="cw_network_note">पोस्टर छवियाँ ज़रूरत पड़ने पर प्रकाशक ऐप्स के सर्वर से डाउनलोड होती हैं।</string>
     <string name="cw_season_ep">S%1$s · E%2$s</string>
     <string name="cw_episode_only">E%1$s</string>
+
+    <!-- Display: edge fade -->
+    <string name="edge_fade">ऊपरी किनारे पर पंक्तियाँ फेड करें</string>
+    <string name="edge_fade_sub">पंक्तियाँ ऊपरी किनारे के नीचे स्क्रॉल करते समय धीरे-धीरे गायब होती हैं — बंद रखना तेज़ है</string>
 </resources>
