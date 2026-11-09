@@ -4,6 +4,12 @@
 
 <img src="art/couchy-launcher.svg" width="120" alt="Couchy Launcher logo" />
 
+# Fork information
+
+Couch Launcher fork with additions:
+- Air Mouse support
+- Continue Watching Row
+
 # Couchy Launcher
 
 **A fast, private, one-screen home launcher for Android TV & Google TV.**
